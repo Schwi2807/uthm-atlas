@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original mark: amber skyplot rings with a crosshair fix -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#FFFFB000" android:strokeWidth="3" android:fillColor="#00000000"
+        android:pathData="M54,30a24,24 0 1,0 0.01,0zM54,42a12,12 0 1,0 0.01,0z" />
+    <path android:strokeColor="#FFFFB000" android:strokeWidth="3" android:fillColor="#00000000"
+        android:pathData="M54,24v60M24,54h60" />
+    <path android:fillColor="#FFFFB000" android:pathData="M66,40a4,4 0 1,0 0.01,0zM44,62a3,3 0 1,0 0.01,0zM62,66a3.5,3.5 0 1,0 0.01,0z" />
+</vector>

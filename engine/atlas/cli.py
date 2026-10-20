@@ -47,7 +47,7 @@ def cmd_footprints(args) -> int:
 
 def cmd_suggest(args) -> int:
     from . import seed
-    out = Path(args.out) if args.out else WORK / "suggestions.json"
+    out = Path(args.out) if args.out else SITE_DATA / "suggestions.json"
     n = seed.suggestion_pack(_cfg(args), out, refresh=args.refresh)
     print(f"suggestion pack: {n} names -> {out.relative_to(REPO) if out.is_relative_to(REPO) else out}")
     return 0
@@ -167,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=cmd_footprints)
 
     p = sub.add_parser("suggest", help="write the Surveyor's offline name-suggestion pack (OSM + Wikidata)")
-    p.add_argument("--out", help="output path (default engine/work/suggestions.json)")
+    p.add_argument("--out", help="output path (default site/data/suggestions.json, downloaded by the Surveyor)")
     p.add_argument("--refresh", action="store_true")
     p.set_defaults(fn=cmd_suggest)
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Atlas Surveyor</string>
+    <string name="track_channel">Survey track</string>
+    <string name="track_running">Recording your survey track</string>
+</resources>

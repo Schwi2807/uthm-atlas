@@ -112,7 +112,7 @@ def run(cfg: Config, work: Path, refresh: bool = False, elements: list[dict] | N
     for ov, replaces in load_overrides(overrides_dir):
         keep = []
         for fp in fps:
-            covered = fp.metric.intersection(ov.metric).area / max(fp.metric.area, 1e-9)
+            covered = fp.metric.intersection(ov.metric).area / max(min(fp.metric.area, ov.metric.area), 1e-9)
             if fp.ref == replaces or covered > 0.5:
                 continue
             keep.append(fp)

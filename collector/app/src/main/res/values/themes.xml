@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Atlas" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/panel</item>
+        <item name="android:statusBarColor">@color/panel</item>
+        <item name="android:navigationBarColor">@color/panel</item>
+    </style>
+    <color name="panel">#FF0B0C0E</color>
+    <color name="amber">#FFFFB000</color>
+</resources>
