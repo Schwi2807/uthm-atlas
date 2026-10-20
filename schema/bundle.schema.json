@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schwi2807.github.io/uthm-atlas/schema/bundle.schema.json",
+  "title": "UTHM Atlas campus.bundle payload",
+  "description": "The MessagePack payload inside campus.bundle after the 10-byte header and gzip. See BUNDLE_FORMAT.md. Coordinates are integer micro-degrees (1e-6 deg, ~0.11 m).",
+  "x-schema-version": 1,
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "build", "campus", "categories", "places", "entrances", "footprints", "search", "tour", "photos"],
+  "properties": {
+    "v": { "type": "integer", "minimum": 1 },
+    "build": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ts", "date", "engine"],
+      "properties": {
+        "ts": { "type": "integer", "description": "Unix seconds, same as the header" },
+        "date": { "type": "string", "format": "date" },
+        "engine": { "type": "string" },
+        "tiles": { "enum": ["pmtiles", "xyz"], "description": "Basemap delivery the site should use" },
+        "counts": { "type": "object" }
+      }
+    },
+    "campus": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "en", "ms", "center", "bbox", "zoom"],
+      "properties": {
+        "id": { "type": "string" },
+        "en": { "type": "string" },
+        "ms": { "type": "string" },
+        "center": { "$ref": "#/$defs/pt" },
+        "bbox": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" }, "description": "[w, s, e, n] micro-degrees" },
+        "zoom": { "type": "number" },
+        "bearing": { "type": "number" },
+        "tz": { "type": "string" }
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "en", "ms", "group", "icon", "color"],
+        "properties": {
+          "id": { "type": "string" },
+          "en": { "type": "string" },
+          "ms": { "type": "string" },
+          "group": { "enum": ["building", "food", "study", "services", "transport", "faith", "living", "access", "other"] },
+          "icon": { "type": "string" },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "chip": { "type": "boolean", "description": "Show as a filter chip" }
+        }
+      }
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "k", "c", "en", "p", "src", "ok"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[0-9a-f]{8}$", "description": "Short id: first 8 hex of the feature uuid; used in deep links" },
+          "k": { "enum": ["building", "poi", "path_note"] },
+          "c": { "type": "string", "description": "Category id" },
+          "en": { "type": "string" },
+          "ms": { "type": ["string", "null"] },
+          "code": { "type": ["string", "null"] },
+          "al": { "type": "array", "items": { "type": "string" } },
+          "p": { "$ref": "#/$defs/pt" },
+          "par": { "type": ["integer", "null"], "description": "Index of the parent building in places" },
+          "fl": { "type": ["integer", "null"], "description": "Floor of a POI" },
+          "nf": { "type": ["integer", "null"], "description": "Storeys of a building" },
+          "h": { "type": ["number", "null"], "description": "Extrusion height in metres" },
+          "rooms": { "type": "array", "items": { "type": "array", "minItems": 3, "maxItems": 4, "description": "[name, code|null, floor|null, kind]" } },
+          "fp": { "type": ["integer", "null"], "description": "Index into footprints" },
+          "ents": { "type": "array", "items": { "type": "integer" }, "description": "Indices into entrances" },
+          "ph": { "type": "array", "items": { "type": "integer" }, "description": "Indices into photos" },
+          "lv": { "type": ["string", "null"], "format": "date" },
+          "src": { "enum": ["survey", "osm", "manual"] },
+          "ok": { "type": "boolean", "description": "Verified on foot" },
+          "acc": { "type": ["number", "null"], "description": "Capture std-dev or best accuracy, metres" },
+          "sf": { "type": ["boolean", "null"], "description": "Step-free access" },
+          "note": { "type": ["string", "null"] },
+          "note_ms": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "entrances": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["pl", "p", "b"],
+        "properties": {
+          "pl": { "type": "integer", "description": "Index of the building in places" },
+          "p": { "$ref": "#/$defs/pt" },
+          "b": { "type": "number", "description": "Bearing into the building, degrees true" },
+          "en": { "type": ["string", "null"] },
+          "ms": { "type": ["string", "null"] },
+          "main": { "type": "boolean" },
+          "sf": { "type": ["boolean", "null"], "description": "Step-free" },
+          "snap": { "type": "boolean", "description": "Snapped onto the footprint edge by the engine" }
+        }
+      }
+    },
+    "footprints": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["r"],
+        "properties": {
+          "pl": { "type": ["integer", "null"], "description": "Owning place, or null for unlinked context buildings" },
+          "h": { "type": "number" },
+          "src": { "enum": ["osm", "override"] },
+          "r": {
+            "type": "array",
+            "description": "Rings; first is outer. Each ring is a flat delta-coded int array [x0, y0, dx1, dy1, ...] in micro-degrees",
+            "items": { "type": "array", "items": { "type": "integer" } }
+          }
+        }
+      }
+    },
+    "search": {
+      "type": "array",
+      "description": "[term, place index, weight]. Terms are lower-cased, accent-folded; weight 3=code, 2=name, 1=alias/room",
+      "items": { "type": "array", "minItems": 3, "maxItems": 3, "prefixItems": [{ "type": "string" }, { "type": "integer" }, { "type": "integer" }] }
+    },
+    "tour": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["pl", "en"],
+        "properties": {
+          "pl": { "type": "integer" },
+          "en": { "type": "string" },
+          "ms": { "type": ["string", "null"] },
+          "t_en": { "type": ["string", "null"] },
+          "t_ms": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["f", "w", "h"],
+        "properties": {
+          "f": { "type": "string", "pattern": "^photos/[0-9a-f]{12}\\.webp$" },
+          "w": { "type": "integer" },
+          "h": { "type": "integer" },
+          "cap": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "paths": {
+      "type": "array",
+      "description": "Optional walking graph (nice-to-have): edges as delta-coded int polylines",
+      "items": { "type": "array", "items": { "type": "integer" } }
+    }
+  },
+  "$defs": {
+    "pt": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "integer" }, "description": "[lon, lat] micro-degrees" }
+  }
+}

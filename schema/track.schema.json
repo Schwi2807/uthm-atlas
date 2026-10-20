@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schwi2807.github.io/uthm-atlas/schema/track.schema.json",
+  "title": "UTHM Atlas breadcrumb track",
+  "description": "track.geojson inside a .uthmsurvey: one LineString per continuous walking segment. Parallel arrays carry per-vertex time (epoch ms) and horizontal accuracy (m).",
+  "x-schema-version": 1,
+  "type": "object",
+  "required": ["type", "features"],
+  "properties": {
+    "type": { "const": "FeatureCollection" },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "geometry", "properties"],
+        "properties": {
+          "type": { "const": "Feature" },
+          "geometry": {
+            "type": "object",
+            "required": ["type", "coordinates"],
+            "properties": {
+              "type": { "const": "LineString" },
+              "coordinates": {
+                "type": "array", "minItems": 1,
+                "items": { "type": "array", "minItems": 2, "maxItems": 3, "items": { "type": "number" } }
+              }
+            }
+          },
+          "properties": {
+            "type": "object",
+            "required": ["t", "acc"],
+            "properties": {
+              "segment": { "type": "integer", "minimum": 0 },
+              "t": { "type": "array", "items": { "type": "integer" } },
+              "acc": { "type": "array", "items": { "type": "number", "minimum": 0 } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schwi2807.github.io/uthm-atlas/schema/curation.schema.json",
+  "title": "UTHM Atlas curation file",
+  "description": "engine/curation.json: hand edits applied at build time. A ref is a feature uuid, its 8-hex short id, a building code (G3), or an OSM ref (osm:way/123).",
+  "x-schema-version": 1,
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "tour": {
+      "type": "array",
+      "description": "First Week tour, in order",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["ref", "title_en"],
+        "properties": {
+          "ref": { "type": "string" },
+          "title_en": { "type": "string" },
+          "title_ms": { "type": ["string", "null"] },
+          "text_en": { "type": ["string", "null"] },
+          "text_ms": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "places": {
+      "type": "object",
+      "description": "ref -> field overrides",
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "name_en": { "type": "string" },
+          "name_ms": { "type": ["string", "null"] },
+          "aliases": { "type": "array", "items": { "type": "string" } },
+          "add_aliases": { "type": "array", "items": { "type": "string" } },
+          "code": { "type": ["string", "null"] },
+          "category": { "type": "string" },
+          "floors": { "type": ["integer", "null"] },
+          "height_m": { "type": ["number", "null"] },
+          "notes": { "type": ["string", "null"] },
+          "hide": { "type": "boolean" }
+        }
+      }
+    },
+    "photos": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "exclude": { "type": "array", "items": { "type": "string" }, "description": "sha256 (or prefix >= 12) or source file name of photos that must never be published (faces, plates)" },
+        "reviewed": { "type": "array", "items": { "type": "string" }, "description": "Photos checked by hand; others are listed as 'needs review' in the build report" }
+      }
+    }
+  }
+}

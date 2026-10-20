@@ -1,0 +1,30 @@
+# Revive kit (chat logs, briefs) stays local
+_REVIVE/
+
+# Python
+engine/.venv/
+engine/.cache/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Raw survey photos stay local; processed WebP in site/data/photos is committed
+surveys/**/photos/
+surveys/_unpacked/
+
+# Android
+collector/.gradle/
+collector/.kotlin/
+collector/build/
+collector/app/build/
+collector/local.properties
+collector/.idea/
+*.iml
+*.apk
+*.aab
+!collector/release/*.apk
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
