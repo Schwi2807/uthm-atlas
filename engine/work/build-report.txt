@@ -1,4 +1,4 @@
-UTHM Atlas build  2026-10-20  (engine 0.1.0, schema v1, ts 1792504938)
+UTHM Atlas build  2026-10-21  (engine 0.1.0, schema v1, ts 1792538540)
 
 Places       213   buildings 96, POIs 117, path notes 0
 Verified       0   walked + confirmed
@@ -6,8 +6,8 @@ Drafts       213   from OSM, badged 'Not walked yet'
 Entrances      0   snapped 0
 Footprints   219   linked 96, context 116
 Photos         0   needing review 0
-Tour steps     0
+Tour steps    12
 
 Size budget
-  campus.bundle      20.1 KB / 2048 KB
+  campus.bundle      23.4 KB / 2048 KB
   campus.pmtiles    696.7 KB / 25600 KB

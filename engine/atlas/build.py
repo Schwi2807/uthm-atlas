@@ -63,7 +63,7 @@ def _ref_matches(ref: str, f: dict) -> bool:
     p = f["properties"]
     fid = f["id"]
     return ref in (fid, fid[:8]) or (p.get("code") and ref.lower() == str(p["code"]).lower()) \
-        or ref == p.get("osm_ref")
+        or ref == p.get("osm_ref") or ref in (p.get("_osm_refs") or [])
 
 
 def _apply_curation(features: list[dict], cur: dict, rep: Report) -> list[dict]:
@@ -368,7 +368,7 @@ def write(data: bytes, rep: Report, out_dir: Path, tiles: str) -> None:
     (out_dir / "campus.bundle").write_bytes(data)
     version, ts = bundle.read_header(data)
     (out_dir / "version.json").write_text(
-        json.dumps({"v": version, "ts": ts, "bytes": len(data), "tiles": tiles}) + "\n", encoding="utf-8")
+        json.dumps({"v": version, "ts": ts, "bytes": len(data), "tiles": tiles}) + "\n", encoding="utf-8", newline="\n")
     # glyphs for every place name (MapLibre renders the labels), then the offline file list
     from . import basemap, glyphs
     b = bundle.decode(data).payload

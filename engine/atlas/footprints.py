@@ -237,7 +237,7 @@ def run(cfg: Config, work: Path, refresh: bool = False, elements: list[dict] | N
                                    "src": fp.src, "linked": fp.linked if fp.linked in by_id else None}})
     work.mkdir(parents=True, exist_ok=True)
     (work / "footprints.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": out}),
-                                             encoding="utf-8")
+                                             encoding="utf-8", newline="\n")
     save_features(work, features)
-    conflicts_path.write_text(json.dumps(conflicts, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    conflicts_path.write_text(json.dumps(conflicts, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     return res

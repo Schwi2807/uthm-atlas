@@ -121,7 +121,8 @@ def _names(tags: dict, building: bool) -> dict | None:
     if not raw and not building:
         return None
     raw = raw.split(";")[0].strip()
-    code, rest = split_code(raw) if raw else (None, "")
+    # building codes lead building names ("G3 Kompleks Dewan Kuliah"); in POI names "G3" is just a reference
+    code, rest = split_code(raw) if raw and building else (None, raw)
     if not code and (tags.get("ref") or "").strip():
         code = tags["ref"].strip()
     aliases: list[str] = []
@@ -329,7 +330,7 @@ def wikidata_labels(cfg: Config, refresh: bool = False) -> list[dict]:
         out.append({"name": en or ms, "name_ms": ms if ms and ms != en else None, "source": "wikidata",
                     "ref": row["item"]["value"].rsplit("/", 1)[-1], "lon": float(m.group(1)), "lat": float(m.group(2))})
     cache.parent.mkdir(parents=True, exist_ok=True)
-    cache.write_text(json.dumps(out), encoding="utf-8")
+    cache.write_text(json.dumps(out), encoding="utf-8", newline="\n")
     return out
 
 
@@ -354,5 +355,5 @@ def suggestion_pack(cfg: Config, out: Path, refresh: bool = False) -> int:
     pack = {"format": "uthm-atlas-suggestions", "version": 1, "campus_id": cfg.campus["id"], "created_at": _now(),
             "attribution": "© OpenStreetMap contributors (ODbL); Wikidata (CC0)", "items": items}
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(pack, ensure_ascii=False), encoding="utf-8")
+    out.write_text(json.dumps(pack, ensure_ascii=False), encoding="utf-8", newline="\n")
     return len(items)

@@ -32,7 +32,7 @@ const FLAVORS = {
 
 const PAL = {
   light: { ctx: '#d9d7cf', ctxTop: '#e4e2da', line: '#9b988d', shadow: '#2a2f3a', shadowOp: 0.14, sel: '#ffc400', text: '#121417', halo: '#ffffff', me: '#1565d8' },
-  dark: { ctx: '#2b3038', ctxTop: '#323843', line: '#59606b', shadow: '#000000', shadowOp: 0.38, sel: '#ffc400', text: '#f2f2ee', halo: '#0d0f12', me: '#5aa2ff' },
+  dark: { ctx: '#3a414c', ctxTop: '#454d59', line: '#59606b', shadow: '#000000', shadowOp: 0.38, sel: '#ffc400', text: '#f2f2ee', halo: '#0d0f12', me: '#5aa2ff' },
 };
 
 function mix(hex, toward, amt) {
@@ -73,7 +73,9 @@ export class CampusMap {
     });
     this.tilesUrl = tilesUrl;
     this.map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a> · <a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a>' }), 'bottom-right');
-    this.map.on('styleimagemissing', (ev) => this.makeImage(ev.id));
+    // MapLibre 6 asks a resolver for images the style needs (markers and arrows are drawn on demand)
+    if (this.map.setMissingStyleImageResolver) this.map.setMissingStyleImageResolver((id) => this.makeImage(id));
+    else this.map.on('styleimagemissing', (ev) => this.makeImage(ev.id));
     this.map.on('load', () => this.wire());
     if (onMove) this.map.on('moveend', onMove);
     this.sunTimer = setInterval(() => this.updateSun(), 5 * 60 * 1000);
@@ -91,7 +93,7 @@ export class CampusMap {
     const label = ['case', ['!=', ['get', 'code'], ''], ['concat', ['get', 'code'], '  ', nameExpr], nameExpr];
     const tint = theme === 'dark' ? '#1b1f27' : '#ffffff';
     const fpColor = ['case', ['==', ['get', 'pl'], -1], pal.ctx,
-      ['match', ['get', 'c'], ...this.b.categories.flatMap((c) => [c.id, mix(c.color, tint, theme === 'dark' ? 0.55 : 0.62)]), pal.ctx]];
+      ['match', ['get', 'c'], ...this.b.categories.flatMap((c) => [c.id, mix(c.color, tint, theme === 'dark' ? 0.25 : 0.62)]), pal.ctx]];
     const sel = ['boolean', ['feature-state', 'sel'], false];
     const placeLayer = (rank, minzoom) => ({
       id: `places-${rank}`, type: 'symbol', source: 'places', minzoom,

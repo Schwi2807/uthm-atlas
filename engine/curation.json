@@ -1,6 +1,97 @@
 {
   "$schema": "../schema/curation.schema.json",
-  "tour": [],
-  "places": {},
+  "tour": [
+    {
+      "ref": "osm:way/332137976",
+      "title_en": "Start at the big hall",
+      "title_ms": "Mula di dewan besar",
+      "text_en": "Dewan Sultan Ibrahim is one of the largest halls on campus and an easy landmark. Big events gather here, so it is a good place to get your bearings.",
+      "text_ms": "Dewan Sultan Ibrahim antara dewan terbesar di kampus dan mudah dijadikan mercu tanda. Acara besar berkumpul di sini, jadi ia tempat yang baik untuk mengenal arah."
+    },
+    {
+      "ref": "osm:node/13663104902",
+      "title_en": "Student matters? Go to HEPA",
+      "title_ms": "Urusan pelajar? Pergi ke HEPA",
+      "text_en": "HEPA is the student and academic affairs office. Forms, letters and most \"who do I ask?\" questions start here.",
+      "text_ms": "HEPA ialah pejabat hal ehwal pelajar dan akademik. Borang, surat dan kebanyakan soalan \"saya patut tanya siapa?\" bermula di sini."
+    },
+    {
+      "ref": "osm:way/223351294",
+      "title_en": "Your study base",
+      "title_ms": "Pangkalan belajar anda",
+      "text_en": "The main library: books, study space and the place everyone heads before exams. Find it once now so you can walk here half-asleep later.",
+      "text_ms": "Perpustakaan utama: buku, ruang belajar dan tempat semua orang tuju sebelum peperiksaan. Cari sekarang supaya mudah datang nanti."
+    },
+    {
+      "ref": "osm:way/223351252",
+      "title_en": "G3: lecture halls",
+      "title_ms": "G3: dewan kuliah",
+      "text_en": "Many timetables list rooms by building code. G3 is a lecture hall complex. Search a code like \"G3\" or \"Blok G\" to jump straight to it.",
+      "text_ms": "Banyak jadual waktu menyenaraikan bilik mengikut kod bangunan. G3 ialah kompleks dewan kuliah. Cari kod seperti \"G3\" atau \"Blok G\" untuk terus ke sana."
+    },
+    {
+      "ref": "osm:way/601091780",
+      "title_en": "Find your faculty",
+      "title_ms": "Cari fakulti anda",
+      "text_en": "This is FKEE. Every faculty has its own building and bus stop. Tap the Faculty chip at the top to see them all, or type your faculty's acronym.",
+      "text_ms": "Ini FKEE. Setiap fakulti ada bangunan dan hentian bas sendiri. Ketik cip Fakulti di atas untuk melihat semuanya, atau taip singkatan fakulti anda."
+    },
+    {
+      "ref": "osm:way/223351186",
+      "title_en": "Food: Arked",
+      "title_ms": "Makan: Arked",
+      "text_en": "Arked is a central cafeteria between classes. The Café chip shows every other place to eat, sorted by distance once you share your location.",
+      "text_ms": "Arked ialah kafeteria utama di antara kelas. Cip Kafe menunjukkan tempat makan lain, disusun ikut jarak apabila anda berkongsi lokasi."
+    },
+    {
+      "ref": "osm:way/223351281",
+      "title_en": "Masjid UTHM",
+      "title_ms": "Masjid UTHM",
+      "text_en": "The campus mosque. There are also smaller surau inside many buildings: use the Surau chip to find the nearest one.",
+      "text_ms": "Masjid kampus. Terdapat juga surau yang lebih kecil di dalam banyak bangunan: gunakan cip Surau untuk mencari yang terdekat."
+    },
+    {
+      "ref": "osm:node/13663104917",
+      "title_en": "Feeling unwell? PKU",
+      "title_ms": "Kurang sihat? PKU",
+      "text_en": "PKU is the university health centre. Remember where it is before you need it.",
+      "text_ms": "PKU ialah pusat kesihatan universiti. Ingat lokasinya sebelum anda memerlukannya."
+    },
+    {
+      "ref": "osm:node/2686066041",
+      "title_en": "Cash and banking",
+      "title_ms": "Wang tunai dan bank",
+      "text_en": "Bank counters and ATMs are clustered in a few spots. The ATM chip lists them all.",
+      "text_ms": "Kaunter bank dan ATM berkumpul di beberapa tempat. Cip ATM menyenaraikan semuanya."
+    },
+    {
+      "ref": "osm:node/3527388732",
+      "title_en": "Getting around: campus buses",
+      "title_ms": "Bergerak: bas kampus",
+      "text_en": "Bus stops are named after what they serve, like this Library stop. The Bus stop chip shows the whole network on the map.",
+      "text_ms": "Hentian bas dinamakan mengikut tempat yang dilayani, seperti hentian Perpustakaan ini. Cip Hentian bas menunjukkan semua hentian di peta."
+    },
+    {
+      "ref": "osm:way/1490769911",
+      "title_en": "Move a bit: sports centre",
+      "title_ms": "Bersukan: pusat sukan",
+      "text_en": "Courts, fields and the stadium are close together. Good for evening runs and co-curricular activities.",
+      "text_ms": "Gelanggang, padang dan stadium berdekatan antara satu sama lain. Sesuai untuk larian petang dan aktiviti kokurikulum."
+    },
+    {
+      "ref": "osm:way/223351263",
+      "title_en": "Home: residential colleges",
+      "title_ms": "Rumah: kolej kediaman",
+      "text_en": "Residential colleges like Tun Dr. Ismail have their own cafeterias and bus stops. Save your college's card with Share so you can always find your way back.",
+      "text_ms": "Kolej kediaman seperti Tun Dr. Ismail ada kafeteria dan hentian bas sendiri. Simpan kad kolej anda dengan Kongsi supaya anda sentiasa tahu jalan pulang."
+    }
+  ],
+  "places": {
+    "osm:way/223351294": { "name_en": "Tunku Tun Aminah Library", "name_ms": "Perpustakaan Tunku Tun Aminah", "add_aliases": ["PTTA", "Library", "Perpustakaan"] },
+    "osm:way/223351252": { "name_en": "Lecture Hall Complex", "name_ms": "Kompleks Dewan Kuliah", "add_aliases": ["Lecture halls"] },
+    "osm:way/332137976": { "name_ms": "Dewan Sultan Ibrahim", "add_aliases": ["DSI"] },
+    "osm:node/13663104917": { "name_en": "University Health Centre (PKU)", "name_ms": "Pusat Kesihatan Universiti (PKU)", "add_aliases": ["Clinic", "Klinik"] },
+    "osm:node/13663104902": { "name_en": "HEPA (Student and Academic Affairs)", "name_ms": "HEPA (Pejabat Hal Ehwal Pelajar dan Akademik)" }
+  },
   "photos": { "exclude": [], "reviewed": [] }
 }

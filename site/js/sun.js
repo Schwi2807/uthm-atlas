@@ -39,7 +39,7 @@ export function campusLight(date, lat, lon) {
       anchor: 'map',
       position: [1.5, day ? azimuth : 200, day ? Math.max(5, 90 - altitude) : 60],
       color: day ? (golden ? '#ffd9a8' : '#ffffff') : '#9fb3ff',
-      intensity: day ? (golden ? 0.45 : 0.32) : 0.18,
+      intensity: day ? (golden ? 0.28 : 0.22) : 0.14,
     },
     // shadow length per metre of height; points away from the sun
     shadow: day ? { k: Math.min(4, 1 / Math.tan(Math.max(altitude, 14) * rad)), dir: (azimuth + 180) % 360 } : null,

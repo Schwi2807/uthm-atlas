@@ -49,7 +49,7 @@ def save_features(work: Path, features: list[dict]) -> None:
     # one feature per line: readable diffs in git
     lines = ",\n".join(json.dumps(f, ensure_ascii=False, sort_keys=True) for f in features)
     (work / "features.geojson").write_text('{"type": "FeatureCollection", "features": [\n' + lines + "\n]}\n",
-                                           encoding="utf-8")
+                                           encoding="utf-8", newline="\n")
     assert json.loads((work / "features.geojson").read_text(encoding="utf-8")) == json.loads(json.dumps(doc))
 
 
@@ -281,7 +281,7 @@ def ingest(cfg: Config, files: list[Path], work: Path, replace: bool = False) ->
                 ph["file"] = f"photos/{name}"
                 res.photos += 1
         (work / "tracks").mkdir(exist_ok=True)
-        (work / "tracks" / f"{sid}.geojson").write_text(json.dumps(s.track), encoding="utf-8")
+        (work / "tracks" / f"{sid}.geojson").write_text(json.dumps(s.track), encoding="utf-8", newline="\n")
         (work / "fixes").mkdir(exist_ok=True)
         with open(work / "fixes" / f"{sid}.csv", "w", newline="", encoding="utf-8") as fh:
             w = csv.DictWriter(fh, fieldnames=FIXES_HEADER, extrasaction="ignore")
@@ -300,6 +300,6 @@ def ingest(cfg: Config, files: list[Path], work: Path, replace: bool = False) ->
                                                     if not k.startswith("_") and k != "osm_ref"}} for f in features],
                               "merged features")
         save_features(work, features)
-        (work / "sessions.json").write_text(json.dumps(sessions, indent=1) + "\n", encoding="utf-8")
-        (work / "conflicts.json").write_text(json.dumps(conflicts, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        (work / "sessions.json").write_text(json.dumps(sessions, indent=1) + "\n", encoding="utf-8", newline="\n")
+        (work / "conflicts.json").write_text(json.dumps(conflicts, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     return res

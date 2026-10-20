@@ -1,0 +1,23 @@
+{
+  "name": "UTHM Atlas · unofficial campus map",
+  "short_name": "UTHM Atlas",
+  "description": "Unofficial, offline campus map of UTHM Parit Raja, surveyed on foot by Schwi2807.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#121417",
+  "theme_color": "#121417",
+  "lang": "en",
+  "categories": ["navigation", "education", "travel"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "First Week tour", "short_name": "First Week", "url": "./#tour=1", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

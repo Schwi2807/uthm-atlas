@@ -43,6 +43,12 @@ def place_terms(place: dict) -> list[tuple[str, int]]:
             terms.append((normalize(place[key]), WEIGHT_NAME))
     for a in place.get("al") or []:
         terms.append((normalize(a), WEIGHT_CODE if _ACRONYM.match(a.strip()) else WEIGHT_ALIAS))
+    # category words in both languages ("surau", "tandas", "printing") find places whose names don't say it
+    from .categories import CATEGORIES
+    cat = CATEGORIES.get(place.get("c") or "")
+    if cat:
+        for label in cat[:2]:
+            terms.append((normalize(label), WEIGHT_ALIAS))
     for room in place.get("rooms") or []:
         name, code = room[0], room[1]
         terms.append((normalize(name), WEIGHT_ALIAS))

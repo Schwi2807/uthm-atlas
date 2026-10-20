@@ -46,7 +46,7 @@ def query(ql: str, *, endpoints: list[str] | None = None, max_age_days: float = 
             r = requests.post(ep, data={"data": ql}, headers={"User-Agent": USER_AGENT}, timeout=120)
             if r.status_code == 200 and r.text.lstrip().startswith("{"):
                 data = r.json()
-                path.write_text(json.dumps(data), encoding="utf-8")
+                path.write_text(json.dumps(data), encoding="utf-8", newline="\n")
                 return data
             last = f"{ep}: HTTP {r.status_code} {r.text[:120]!r}"
         except requests.RequestException as e:  # network trouble: try the next mirror

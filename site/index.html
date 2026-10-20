@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>UTHM Atlas · unofficial campus map</title>
+  <meta name="description" content="Unofficial, offline campus map of UTHM Parit Raja, surveyed on foot by Schwi2807.">
+  <meta name="theme-color" content="#121417">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="UTHM Atlas">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    // theme before first paint (no flash)
+    try {
+      const t = localStorage.getItem('uthm-atlas:theme') || 'auto';
+      const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    } catch (e) { /* storage blocked: light */ }
+    // test hook: headless/preview panes freeze requestAnimationFrame; ?rafshim drives frames with timers
+    if (/[?&]rafshim\b/.test(location.search)) window.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 16);
+  </script>
+  <script src="vendor/pmtiles.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#search">Skip to search</a>
+  <div id="map" role="application" aria-label="Campus map"></div>
+
+  <header class="top">
+    <form id="searchForm" class="searchbar" role="search" autocomplete="off">
+      <span class="searchbar-ico" aria-hidden="true"></span>
+      <input id="search" type="search" enterkeyhint="search" spellcheck="false" autocapitalize="off">
+      <button id="searchClear" class="iconbtn" type="button" hidden></button>
+      <button id="menuBtn" class="iconbtn" type="button"></button>
+    </form>
+    <nav id="chips" class="chips" aria-label=""></nav>
+  </header>
+
+  <section id="results" class="results" hidden aria-live="polite"></section>
+
+  <div class="fabs" id="fabs">
+    <button id="northBtn" class="fab" type="button"><span class="needle"></span></button>
+    <button id="viewBtn" class="fab fab-txt" type="button">2D</button>
+    <button id="locBtn" class="fab" type="button"></button>
+  </div>
+
+  <div class="bottombar">
+    <button id="tourBtn" class="tourbtn" type="button"></button>
+    <button id="offlinePill" class="pill" type="button" aria-live="polite"></button>
+  </div>
+
+  <section id="sheet" class="sheet" hidden aria-modal="false" role="dialog" aria-labelledby="sheetTitle">
+    <div class="grab" aria-hidden="true"></div>
+    <div id="sheetBody" class="sheet-body"></div>
+  </section>
+
+  <section id="tour" class="tour" hidden role="dialog" aria-modal="true" aria-labelledby="tourTitle"></section>
+
+  <div id="viewer" class="viewer" hidden role="dialog" aria-modal="true"></div>
+
+  <footer class="foot"><span id="footText">Unofficial · surveyed on foot by Schwi2807</span></footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="boot" class="boot">
+    <div class="boot-sign"><span class="boot-mark" aria-hidden="true"></span><strong>UTHM Atlas</strong><small>Unofficial student-made map</small></div>
+    <p id="bootMsg">Loading campus…</p>
+  </div>
+  <noscript><p class="noscript">UTHM Atlas needs JavaScript to draw the map.</p></noscript>
+</body>
+</html>

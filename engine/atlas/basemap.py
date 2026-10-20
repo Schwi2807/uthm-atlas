@@ -137,7 +137,7 @@ def run(cfg: Config, site_data: Path, refresh: bool = False, date: str | None = 
     site_data.mkdir(parents=True, exist_ok=True)
     dest = site_data / "campus.pmtiles"
     shutil.copyfile(out, dest)
-    (cache / "latest.json").write_text(json.dumps({"date": date}), encoding="utf-8")
+    (cache / "latest.json").write_text(json.dumps({"date": date}), encoding="utf-8", newline="\n")
     res = BasemapResult(date, dest, dest.stat().st_size)
     budget = int(cfg["budget"]["pmtiles_kb"]) * 1024
     if res.bytes > budget:
@@ -157,19 +157,11 @@ def run(cfg: Config, site_data: Path, refresh: bool = False, date: str | None = 
     return res
 
 
-def write_file_list(site_data: Path) -> list[str]:
-    """data/files.json: everything the service worker must cache for full offline use (paths relative to site/)."""
-    site = site_data.parent
-    files = []
-    for folder in (site_data, site / "map"):
-        if folder.exists():
-            files += [p.relative_to(site).as_posix() for p in folder.rglob("*")
-                      if p.is_file() and p.name != "files.json" and "/tiles/" not in p.as_posix()]
-    files.sort()
-    total = sum((site / f).stat().st_size for f in files)
-    (site_data / "files.json").write_text(json.dumps({"files": files, "bytes": total}, indent=0) + "\n",
-                                          encoding="utf-8")
-    return files
+def write_file_list(site_data: Path) -> None:
+    """Refresh the service worker's precache list (see sitefiles.py)."""
+    from . import sitefiles
+    if (site_data.parent / "sw.js").exists():
+        sitefiles.update_sw(site_data.parent)
 
 
 # ---------------------------------------------------------------- minimal PMTiles v3 reader (xyz fallback)

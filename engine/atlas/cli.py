@@ -74,7 +74,7 @@ def cmd_build(args) -> int:
         return 2
     build.write(data, rep, SITE_DATA, tiles)
     text = rep.text()
-    (WORK / "build-report.txt").write_text(text, encoding="utf-8")
+    (WORK / "build-report.txt").write_text(text, encoding="utf-8", newline="\n")
     print(text)
     problems = check.check_site(SITE_DATA)
     for p in problems:
@@ -97,6 +97,13 @@ def cmd_check(args) -> int:
     c = b.payload["build"]["counts"]
     print(f"campus.bundle OK: schema v{b.version}, built {b.payload['build']['date']}, "
           f"{c['places']} places ({c['verified']} verified), {c['photos']} photos, tiles={b.payload['build']['tiles']}")
+    return 0
+
+
+def cmd_sw(args) -> int:
+    from . import sitefiles
+    version, n = sitefiles.update_sw(SITE)
+    print(f"site/sw.js: VERSION {version}, {n} precached files")
     return 0
 
 
@@ -144,6 +151,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("check", help="deploy gate: decode + validate site/data/campus.bundle")
     p.add_argument("--data", help="data dir (default site/data)")
     p.set_defaults(fn=cmd_check)
+
+    p = sub.add_parser("sw", help="refresh site/sw.js precache list + version after editing site code")
+    p.set_defaults(fn=cmd_sw)
 
     p = sub.add_parser("preview", help="serve site/ locally with Range support")
     p.add_argument("--port", type=int, default=8000)
