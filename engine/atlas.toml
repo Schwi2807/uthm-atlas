@@ -1,0 +1,57 @@
+# UTHM Atlas engine configuration. Paths are relative to the repo root.
+
+[campus]
+id = "parit-raja"
+name_en = "UTHM Parit Raja campus"
+name_ms = "Kampus UTHM Parit Raja"
+# OSM relation 20352417 (Universiti Tun Hussein Onn Malaysia) bounds, 2026-10-20
+core_bbox = [103.0761, 1.8507, 103.0917, 1.8668]       # [west, south, east, north]
+# Footprints, suggestions and basemap use the core bbox plus this margin (degrees, ~440 m)
+margin_deg = 0.004
+center = [103.0839, 1.8588]
+zoom = 16.2
+bearing = 0
+tz = "Asia/Kuala_Lumpur"
+
+[survey]
+dedupe_radius_m = { building = 25.0, entrance = 4.0, poi = 6.0, path_note = 8.0 }
+warn_accuracy_m = 10.0
+# Entrances further than this from their footprint edge are not snapped (logged instead)
+snap_max_m = 12.0
+# Building anchors further than this from any footprint stay unlinked ("needs tracing")
+link_max_m = 30.0
+
+[build]
+storey_height_m = 3.6
+default_storeys = 2
+footprint_simplify_m = 0.6
+# Unlinked OSM buildings inside the bbox are still drawn (grey, flat-ish) for context
+context_buildings = true
+# OSM draft places (named buildings/amenities, not walked yet) are included and badged
+include_osm_drafts = true
+
+[photos]
+max_px = 1280
+quality = 72
+min_quality = 40
+
+[budget]
+bundle_kb = 2048
+pmtiles_kb = 25600
+photo_kb = 150
+
+[basemap]
+# Newest daily build is found automatically; set to pin a date like "20261015"
+protomaps_build = ""
+builds_url = "https://build-metadata.protomaps.dev/builds.json"
+build_url = "https://build.protomaps.com/{date}.pmtiles"
+maxzoom = 15
+pmtiles_version = "1.30.1"
+
+[overpass]
+max_age_days = 30
+endpoints = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+]

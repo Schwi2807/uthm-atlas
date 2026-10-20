@@ -1,0 +1,6 @@
+{
+  "$schema": "../schema/curation.schema.json",
+  "tour": [],
+  "places": {},
+  "photos": { "exclude": [], "reviewed": [] }
+}
