@@ -154,12 +154,10 @@ def build(cfg: Config, work_dir: Path, out_dir: Path, curation_path: Path | None
         storeys = storeys or fpp.get("levels")
         h = place_feats[pl]["properties"].get("_height_m") if pl is not None else None
         h = h or fpp.get("height") or (storeys or (default_storeys if pl is not None else 1)) * storey_h
-        if pl is not None and pl in fp_of_place:
-            rep.warnings.append(f"{place_feats[pl]['properties']['name_en']}: several footprints linked; keeping the first")
-            continue
         fp_out.append({"pl": pl, "h": round(float(h), 1), "src": fpp.get("src", "osm"), "r": rings})
         if pl is not None:
-            fp_of_place[pl] = len(fp_out) - 1
+            # a complex can own several outlines; the place points at the first (largest-first is not needed)
+            fp_of_place.setdefault(pl, len(fp_out) - 1)
         else:
             unlinked_ctx += 1
 
@@ -371,6 +369,11 @@ def write(data: bytes, rep: Report, out_dir: Path, tiles: str) -> None:
     version, ts = bundle.read_header(data)
     (out_dir / "version.json").write_text(
         json.dumps({"v": version, "ts": ts, "bytes": len(data), "tiles": tiles}) + "\n", encoding="utf-8")
+    # glyphs for every place name (MapLibre renders the labels), then the offline file list
+    from . import basemap, glyphs
+    b = bundle.decode(data).payload
+    texts = [p["en"] for p in b["places"]] + [p["ms"] or "" for p in b["places"]]
+    glyphs.ensure(out_dir.parent / "map", glyphs.ranges_for(texts), log=lambda *_: None)
     # drop photos no longer referenced
     keep = rep.stats.get("written_photos", set())
     pdir = out_dir / "photos"
@@ -378,3 +381,4 @@ def write(data: bytes, rep: Report, out_dir: Path, tiles: str) -> None:
         for f in pdir.glob("*.webp"):
             if f"photos/{f.name}" not in keep:
                 f.unlink()
+    basemap.write_file_list(out_dir)

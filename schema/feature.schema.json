@@ -29,7 +29,7 @@
         "category": { "$ref": "#/$defs/category" },
         "name_en": { "type": "string", "minLength": 1, "maxLength": 120 },
         "name_ms": { "type": ["string", "null"], "maxLength": 120 },
-        "aliases": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 60 }, "uniqueItems": true },
+        "aliases": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 120 }, "uniqueItems": true },
         "code": { "type": ["string", "null"], "maxLength": 24, "description": "Short building/room code, e.g. G3 or FKEE" },
         "parent_id": { "oneOf": [{ "$ref": "#/$defs/uuid" }, { "type": "null" }], "description": "Building this entrance/POI belongs to" },
         "floor": { "type": ["integer", "null"], "minimum": -3, "maximum": 30, "description": "Floor of a POI/room (0 = ground)" },
