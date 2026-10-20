@@ -37,3 +37,13 @@ Judgement calls made during the unattended build. Newest last. Kickoff answers (
   walked feature replaces the draft (it inherits `osm_ref`). Texts are written generic on purpose (no opening hours
   or facilities that could be wrong); edit them freely.
 - **D14 Typeface:** Overpass (OFL), the open font modelled on US highway signage, fits the transit-guide brief.
+- **D15 Public-repo privacy defaults:** `surveys/*.uthmsurvey`, `engine/work/photos|tracks|fixes/` are git-ignored
+  (they hold the owner's walked GPS trail and unreviewed photos). The merged `engine/work/features.geojson`,
+  footprints and the built site are committed, so any machine can rebuild the bundle. Opt in by editing .gitignore.
+- **D16 Pages fallback without a rebuild:** if the live Range probe fails, CI runs `atlas xyz --drop-pmtiles` +
+  `atlas retile --tiles xyz` (re-encodes the committed bundle with tiles=xyz and a new timestamp) and redeploys,
+  so photos that only exist on the laptop are never needed in CI. The site reads `build.tiles` and loads
+  `data/tiles/{z}/{x}/{y}.mvt` (tiles stored inflated, since static hosts don't send Content-Encoding).
+- **D17 Identity check** (`tools/identity_check.py`, also a CI step): commit identities must be Schwi2807 with a
+  no-reply address; tracked files may not contain home-directory paths or real e-mail addresses. Names to look for
+  are passed in `ATLAS_FORBIDDEN_NAMES` at run time and are never written into the repo.

@@ -1,4 +1,4 @@
-UTHM Atlas build  2026-10-21  (engine 0.1.0, schema v1, ts 1792538540)
+UTHM Atlas build  2026-10-21  (engine 0.1.0, schema v1, ts 1792538715)
 
 Places       213   buildings 96, POIs 117, path notes 0
 Verified       0   walked + confirmed

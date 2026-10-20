@@ -114,7 +114,9 @@ export class CampusMap {
       glyphs: `${BASE}map/fonts/{fontstack}/{range}.pbf`,
       sprite: `${BASE}map/sprites/${theme}`,
       sources: {
-        pm: { type: 'vector', url: tilesUrl, attribution: '' },
+        pm: tilesUrl.startsWith('xyz:')
+          ? { type: 'vector', tiles: [`${BASE}data/tiles/{z}/{x}/{y}.mvt`], minzoom: 0, maxzoom: +tilesUrl.slice(4) || 15, attribution: '' }
+          : { type: 'vector', url: tilesUrl, attribution: '' },
         fp: { type: 'geojson', data: this.fp },
         shadows: { type: 'geojson', data: shadowGeoJSON(this.fp, this.sun.shadow) },
         places: { type: 'geojson', data: this.places },
@@ -306,7 +308,9 @@ export class CampusMap {
 }
 
 // --- PMTiles wiring: range requests when the host supports them, else load the (small) archive whole.
-export async function registerTiles() {
+export async function registerTiles(build = {}) {
+  // z/x/y fallback chosen at build time (hosts without Range support): plain static tiles
+  if (build.tiles === 'xyz') return { url: `xyz:${build.maxzoom || 15}`, mode: 'xyz' };
   const pm = window.pmtiles;
   const protocol = new pm.Protocol();
   maplibregl.addProtocol('pmtiles', protocol.tile);

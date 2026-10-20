@@ -100,6 +100,40 @@ def cmd_check(args) -> int:
     return 0
 
 
+def cmd_xyz(args) -> int:
+    """Pages fallback: unpack the committed campus.pmtiles into data/tiles/{z}/{x}/{y}.mvt (no network)."""
+    from . import basemap, sitefiles
+    src = SITE_DATA / "campus.pmtiles"
+    if not src.exists():
+        print("site/data/campus.pmtiles missing; run atlas basemap first", file=sys.stderr)
+        return 2
+    n = basemap.export_xyz(src, SITE_DATA / "tiles")
+    if args.drop_pmtiles:
+        src.unlink()
+    version, files = sitefiles.update_sw(SITE)
+    print(f"xyz fallback: {n} tiles in site/data/tiles/; now run: atlas retile --tiles xyz")
+    return 0
+
+
+def cmd_retile(args) -> int:
+    """Switch an existing campus.bundle between pmtiles and xyz delivery without rebuilding (CI fallback)."""
+    import json
+    import time
+    from . import bundle, sitefiles
+    path = SITE_DATA / "campus.bundle"
+    b = bundle.decode(path.read_bytes())
+    ts = max(int(time.time()), b.ts + 1)
+    b.payload["build"]["tiles"] = args.tiles
+    b.payload["build"]["ts"] = ts
+    data = bundle.encode(b.payload, ts)
+    path.write_bytes(data)
+    (SITE_DATA / "version.json").write_text(
+        json.dumps({"v": b.version, "ts": ts, "bytes": len(data), "tiles": args.tiles}) + "\n", encoding="utf-8", newline="\n")
+    sitefiles.update_sw(SITE)
+    print(f"campus.bundle now uses tiles={args.tiles} (ts {ts})")
+    return 0
+
+
 def cmd_sw(args) -> int:
     from . import sitefiles
     version, n = sitefiles.update_sw(SITE)
@@ -151,6 +185,14 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("check", help="deploy gate: decode + validate site/data/campus.bundle")
     p.add_argument("--data", help="data dir (default site/data)")
     p.set_defaults(fn=cmd_check)
+
+    p = sub.add_parser("xyz", help="export site/data/tiles/{z}/{x}/{y}.mvt from campus.pmtiles (no-Range fallback)")
+    p.add_argument("--drop-pmtiles", action="store_true", help="remove campus.pmtiles afterwards")
+    p.set_defaults(fn=cmd_xyz)
+
+    p = sub.add_parser("retile", help="switch the built bundle to pmtiles or xyz tiles (no rebuild)")
+    p.add_argument("--tiles", choices=["pmtiles", "xyz"], required=True)
+    p.set_defaults(fn=cmd_retile)
 
     p = sub.add_parser("sw", help="refresh site/sw.js precache list + version after editing site code")
     p.set_defaults(fn=cmd_sw)

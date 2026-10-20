@@ -483,7 +483,7 @@ async function boot() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.b = await parseBundle(await res.arrayBuffer());
     state.search = makeSearch(state.b);
-    const tiles = await registerTiles();
+    const tiles = await registerTiles(state.b.build);
     state.b.tilesMode = tiles.mode;
     const theme = document.documentElement.dataset.theme;
     state.map = new CampusMap($('#map'), state.b, {

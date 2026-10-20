@@ -17,6 +17,7 @@
         "date": { "type": "string", "format": "date" },
         "engine": { "type": "string" },
         "tiles": { "enum": ["pmtiles", "xyz"], "description": "Basemap delivery the site should use" },
+        "maxzoom": { "type": "integer", "description": "Highest basemap tile zoom (the map overzooms beyond it)" },
         "counts": { "type": "object" }
       }
     },

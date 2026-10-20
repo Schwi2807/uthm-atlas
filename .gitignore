@@ -28,3 +28,9 @@ collector/.idea/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Privacy defaults for a public repo (see DECISIONS D15): raw photos, walked tracks and fix samples stay local
+engine/work/photos/
+engine/work/tracks/
+engine/work/fixes/
+surveys/*.uthmsurvey

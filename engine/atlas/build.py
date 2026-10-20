@@ -282,7 +282,8 @@ def build(cfg: Config, work_dir: Path, out_dir: Path, curation_path: Path | None
     }
     payload = {
         "v": SCHEMA_VERSION,
-        "build": {"ts": ts, "date": _local_date(ts), "engine": __version__, "tiles": tiles, "counts": counts},
+        "build": {"ts": ts, "date": _local_date(ts), "engine": __version__, "tiles": tiles,
+                  "maxzoom": int(cfg["basemap"].get("maxzoom", 15)), "counts": counts},
         "campus": {
             "id": c["id"], "en": c["name_en"], "ms": c["name_ms"],
             "center": geo.micro_pt(*c["center"]), "bbox": [geo.micro(w), geo.micro(s), geo.micro(e), geo.micro(n)],

@@ -1,0 +1,105 @@
+# Deploys site/ to GitHub Pages on every push to main, but only after the bundle passes the deploy gate.
+# After deploying it checks that the live site answers PMTiles Range requests; if it doesn't, it switches the
+# basemap to a static z/x/y tile folder and deploys again (no network needed: tiles come from campus.pmtiles).
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "engine/**", "schema/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: engine/pyproject.toml
+      - name: Install engine
+        run: pip install -e "engine[test]"
+      - name: Unit tests
+        run: python -m pytest -q engine/tests
+      - name: Identity check (only Schwi2807 anywhere)
+        run: python tools/identity_check.py
+      - name: Deploy gate (bundle decodes, schema + version checks)
+        run: atlas check
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    outputs:
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  verify-ranges:
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Range support on the live site
+        id: probe
+        run: |
+          url="${{ needs.deploy.outputs.url }}data/campus.pmtiles"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /tmp/head.bin -w '%{http_code}' -H 'Range: bytes=0-15' "$url" || true)
+            [ "$code" != "404" ] && break
+            sleep 20   # Pages CDN can take a moment after a deploy
+          done
+          magic=$(head -c 7 /tmp/head.bin || true)
+          echo "status=$code magic=$magic"
+          if [ "$code" = "206" ] && [ "$magic" = "PMTiles" ]; then
+            echo "ranges=ok" >> "$GITHUB_OUTPUT"
+            echo "### PMTiles Range requests work on $url" >> "$GITHUB_STEP_SUMMARY"
+          elif [ ! -f site/data/campus.pmtiles ]; then
+            echo "ranges=n/a" >> "$GITHUB_OUTPUT"
+            echo "### Site already uses the z/x/y tile fallback" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ranges=fail" >> "$GITHUB_OUTPUT"
+            echo "### Range request returned $code: switching to the z/x/y fallback" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.probe.outputs.ranges == 'fail'
+        with:
+          python-version: "3.12"
+      - name: Build the z/x/y fallback
+        if: steps.probe.outputs.ranges == 'fail'
+        run: |
+          pip install -e engine
+          atlas xyz --drop-pmtiles
+          atlas retile --tiles xyz
+          atlas check
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.probe.outputs.ranges == 'fail'
+        with:
+          path: site
+          name: github-pages-xyz
+      - name: Deploy the fallback
+        if: steps.probe.outputs.ranges == 'fail'
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-xyz
