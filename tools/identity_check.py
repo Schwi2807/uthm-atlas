@@ -20,7 +20,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ALLOWED_PEOPLE = {"schwi2807", "shizuka", "github", "github-actions[bot]", "claude"}
 ALLOWED_MAIL = re.compile(r"(users\.noreply\.github\.com|noreply@github\.com|noreply@anthropic\.com|@example\.(com|org|net)$)", re.I)
-HOME_PATH = re.compile(r"([A-Za-z]:[\\/]+Users[\\/]+[^\\/\s\"']+|/Users/[^/\s\"']+|/home/[^/\s\"']+)")
+# an account name starts with a letter/digit, so "C:\Users\..." in this docstring and regex text don't match
+HOME_PATH = re.compile(r"([A-Za-z]:[\\/]+Users[\\/]+[A-Za-z0-9_~][^\\/\s\"',)]*|/Users/[A-Za-z0-9_][^/\s\"',)]*|/home/[A-Za-z0-9_][^/\s\"',)]*)")
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 TEXT_EXT = {".py", ".js", ".mjs", ".json", ".geojson", ".md", ".txt", ".toml", ".yml", ".yaml", ".html", ".css",
             ".kt", ".kts", ".xml", ".gradle", ".properties", ".pro", ".csv", ".svg", ".webmanifest", ".ps1", ".bat"}
