@@ -73,3 +73,10 @@ Judgement calls made during the unattended build. Newest last. Kickoff answers (
   imported in parallel with the bundle download. `atlas preview` now gzips text like GitHub Pages so local
   Lighthouse numbers are realistic (without it FCP looked 2.5x worse). Remaining TBT is MapLibre's own ~1.7 s
   script evaluation on a 4x-throttled CPU.
+- **D26 Low-confidence buildings** (owner request 2026-10-21) get their own category `building_unconfirmed`
+  ("Unconfirmed building" / "Bangunan belum disahkan", grey "?" marker, filter chip shown last). Rule
+  (`seed.low_confidence`): the OSM name is only a building code ("C16"), a generic structure word (Kabin, Garaj,
+  Pentas, TNB, Stor, Asrama ...), or the building is a minor structure (shed, roof, garage ...). 26 of 96 draft
+  buildings today. The engine keeps the guessed category in `_category_guess` and the reason in `_confidence`; the
+  card warns "may be gone, renamed or not what it seems". Walking it and saving with a real category ends it; the
+  Surveyor can also save a building as Unconfirmed if you couldn't tell on site.

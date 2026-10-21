@@ -12,5 +12,8 @@ Push-Location $PSScriptRoot
 try {
     # run through cmd so Gradle's stderr warnings don't become PowerShell errors; Gradle's exit code decides
     cmd /c "`"$PSScriptRoot\gradlew.bat`" -p `"$PSScriptRoot`" --console=plain $($Tasks -join ' ') 2>&1"
-    exit $LASTEXITCODE
+    $code = $LASTEXITCODE
+    # stop the daemon: otherwise it keeps redirected output open and leaves java.exe running
+    cmd /c "`"$PSScriptRoot\gradlew.bat`" -p `"$PSScriptRoot`" --stop >nul 2>&1"
+    exit $code
 } finally { Pop-Location }

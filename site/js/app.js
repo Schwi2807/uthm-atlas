@@ -87,6 +87,7 @@ function applyTexts() {
 function renderChips() {
   if (!state.b) return;
   const cats = state.b.categories.filter((c) => c.chip && state.b.places.some((p) => p.c === c.id));
+  cats.sort((a, b) => (a.id === 'building_unconfirmed') - (b.id === 'building_unconfirmed')); // the checking aid goes last
   const nav = $('#chips');
   nav.innerHTML = `<button type="button" class="chip chip-all" data-cat="" aria-pressed="${!state.filter}">${esc(t('all'))}</button>` +
     cats.map((c) => `<button type="button" class="chip" data-cat="${c.id}" aria-pressed="${state.filter?.[0] === c.id}">${bullet(c.id)}${esc(catName(c))}</button>`).join('');
@@ -175,7 +176,7 @@ function placeHtml(p) {
   parts.push(`<div class="card-meta">${p.code ? bullet(p.c, { draft: !p.ok }) : ''}<span class="tag">${esc(catName(c))}</span>
     ${p.ok ? `<span class="tag ok">${svg('check', { size: 16, stroke: 3 })}${esc(t('verified'))}</span>`
     : `<span class="tag draft">${svg('info', { size: 16 })}${esc(t('draft'))}</span>`}</div>`);
-  if (!p.ok) parts.push(`<p class="note">${esc(t('draftNote'))}</p>`);
+  if (!p.ok) parts.push(`<p class="note">${esc(t(p.c === 'building_unconfirmed' ? 'unconfirmed' : 'draftNote'))}</p>`);
   if (p.note) parts.push(`<p class="note">${esc(getLang() === 'ms' && p.note_ms ? p.note_ms : p.note)}</p>`);
   parts.push(`<div class="actions">
     <a class="btn primary" href="${esc(walkUrl(p))}" target="_blank" rel="noopener">${svg('walk')}${esc(t('walkThere'))}</a>

@@ -78,6 +78,7 @@
     "category": {
       "enum": [
         "faculty", "lecture_hall", "admin", "library", "hall", "sports", "residential", "clinic", "mosque", "building_other",
+        "building_unconfirmed",
         "entrance",
         "cafe", "surau", "atm", "printing", "bus_stop", "parking", "toilet", "kolej_block", "lecture_room", "lab",
         "shop", "office", "landmark", "ramp", "lift", "poi_other",

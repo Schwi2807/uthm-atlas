@@ -70,6 +70,27 @@ def split_code(name: str) -> tuple[str | None, str]:
     return None, name.strip()
 
 
+# Single words that name a structure type, not a place: "Kabin", "Garaj", "Pentas", "TNB" (substation) ...
+_GENERIC_BUILDING_WORDS = {"kabin", "cabin", "garaj", "garage", "pentas", "stage", "open stage", "stor", "store",
+                           "stor pusat", "centre store", "tnb", "asrama", "hostel", "shelter", "bus stop", "pondok",
+                           "wakaf", "rumah pam", "pump house", "pencawang", "substation"}
+_MINOR_BUILDING_TAGS = {"garage", "garages", "shed", "roof", "hut", "container", "construction", "kiosk", "service",
+                        "transformer_tower", "carport"}
+
+
+def low_confidence(tags: dict, names: dict) -> str | None:
+    """Why an OSM draft building is too vague to trust (it may be gone, renamed or never existed), else None."""
+    raw = (tags.get("name") or "").strip()
+    code, rest = split_code(raw) if raw else (None, "")
+    if code and not rest:
+        return "only a building code"
+    if rest.lower() in _GENERIC_BUILDING_WORDS or raw.lower() in _GENERIC_BUILDING_WORDS:
+        return "generic name"
+    if tags.get("building") in _MINOR_BUILDING_TAGS:
+        return f"minor structure (building={tags.get('building')})"
+    return None
+
+
 def category_for(tags: dict, name: str, building: bool) -> str | None:
     n = name.lower()
     a = tags.get("amenity", "")
@@ -198,10 +219,11 @@ def drafts(cfg: Config, elements: list[dict], area) -> list[dict]:
             floors = max(1, min(30, int(float(levels)))) if levels else None
         except ValueError:
             floors = None
+        why = low_confidence(tags, names) if building else None
         props = {
             "campus_id": cfg.campus["id"],
             "kind": "building" if building else "poi",
-            "category": cat,
+            "category": "building_unconfirmed" if why else cat,
             "name_en": names["name_en"],
             "name_ms": names["name_ms"],
             "aliases": names["aliases"],
@@ -211,6 +233,9 @@ def drafts(cfg: Config, elements: list[dict], area) -> list[dict]:
             "last_verified": None,
             "osm_ref": osmdata.ref(el),
         }
+        if why:
+            props["_category_guess"] = cat
+            props["_confidence"] = f"low: {why}"
         if building and floors:
             props["floors"] = floors
         out.append({"type": "Feature", "id": osmdata.feature_id(el),

@@ -228,3 +228,26 @@ def test_door_arrows_are_squared_to_the_wall(cfg, tmp_path):
     assert res.squared == 2
     footprints.run(cfg, work, elements=els, overrides_dir=tmp_path / "none")  # idempotent
     assert {f["id"]: f["properties"] for f in ingest.load_features(work)}[fid(2)]["_bearing_orig"] == 20.0
+
+
+@pytest.mark.parametrize("tags, expect", [
+    ({"building": "university", "name": "C16"}, "only a building code"),
+    ({"building": "university", "name": "B9 Kabin"}, "generic name"),
+    ({"building": "yes", "name": "TNB"}, "generic name"),
+    ({"building": "shed", "name": "Store of sports gear"}, "minor structure"),
+    ({"building": "university", "name": "G3 Kompleks Dewan Kuliah"}, None),
+    ({"building": "university", "name": "Anechoic Chamber"}, None),
+])
+def test_low_confidence_buildings(tags, expect):
+    why = seed.low_confidence(tags, {})
+    assert (why is None) if expect is None else (expect in why)
+
+
+def test_vague_drafts_get_the_unconfirmed_category(cfg):
+    from shapely.geometry import box
+    el = {"type": "way", "id": 5, "tags": {"building": "university", "name": "C16"},
+          "geometry": [{"lon": x, "lat": y} for x, y in [(103.085, 1.858), (103.0852, 1.858), (103.0852, 1.8582), (103.085, 1.8582), (103.085, 1.858)]]}
+    out = seed.drafts(cfg, [el], box(103.0, 1.8, 103.2, 1.9))
+    p = out[0]["properties"]
+    assert p["category"] == "building_unconfirmed" and p["_category_guess"] == "building_other"
+    assert p["name_en"] == "Building C16" and p["_confidence"].startswith("low")

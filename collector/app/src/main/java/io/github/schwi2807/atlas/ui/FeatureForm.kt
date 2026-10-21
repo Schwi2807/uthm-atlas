@@ -63,7 +63,7 @@ import java.io.File
 
 val KINDS = listOf("building" to "Building", "entrance" to "Entrance", "poi" to "POI", "path_note" to "Path note")
 val CATEGORIES = mapOf(
-    "building" to listOf("faculty", "lecture_hall", "admin", "library", "hall", "sports", "residential", "clinic", "mosque", "building_other"),
+    "building" to listOf("faculty", "lecture_hall", "admin", "library", "hall", "sports", "residential", "clinic", "mosque", "building_other", "building_unconfirmed"),
     "entrance" to listOf("entrance"),
     "poi" to listOf("cafe", "surau", "atm", "printing", "bus_stop", "parking", "toilet", "kolej_block", "lecture_room", "lab",
         "shop", "office", "landmark", "ramp", "lift", "poi_other"),

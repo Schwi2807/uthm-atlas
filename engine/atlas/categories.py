@@ -14,6 +14,8 @@ CATEGORIES: dict[str, tuple[str, str, str, str, str, bool]] = {
     "clinic":         ("Clinic", "Klinik", "services", "cross", "#DC2626", False),
     "mosque":         ("Mosque", "Masjid", "faith", "dome", "#0F766E", False),
     "building_other": ("Building", "Bangunan", "building", "building", "#475569", False),
+    # OSM drafts whose name says nothing about what the building is: shown so they can be checked on foot
+    "building_unconfirmed": ("Unconfirmed building", "Bangunan belum disahkan", "building", "question", "#9CA3AF", True),
     "entrance":       ("Entrance", "Pintu masuk", "access", "door", "#111827", False),
     "cafe":           ("Café", "Kafe", "food", "cup", "#EA580C", True),
     "surau":          ("Surau", "Surau", "faith", "dome", "#0F766E", True),
