@@ -53,12 +53,26 @@ fun HudScreen(survey: SurveyController, sessionTitle: String?, onCaptured: () ->
     ) {
         StatusStrip(g, sessionTitle, recording)
         val tpl by survey.template.collectAsState()
+        val captureBlock: @Composable () -> Unit = {
+            when (val c = capture) {
+                is CaptureUi.Running -> CapturePanel(c, onStop = survey::stopCapture, onCancel = survey::cancelCapture)
+                is CaptureUi.Done -> DonePanel(c, survey.settings.warnAccM,
+                    onRecapture = { survey.startCapture(c.featureId) },
+                    onUse = { if (c.featureId != null) survey.clearDone() else onCaptured() },
+                    onDiscard = survey::clearDone)
+                CaptureUi.Idle -> InstrButton(
+                    if (g.fix == null) "Waiting for GPS fix (${g.used}/${g.visible} sats)" else "Capture",
+                    Modifier.fillMaxWidth().height(64.dp), primary = true, enabled = g.fix != null,
+                ) { if (sessionTitle == null) onNeedSession() else survey.startCapture() }
+            }
+        }
         tpl?.let { t ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Banner("Verifying: ${t.code?.let { "$it " } ?: ""}${t.nameEn}. Stand at the main entrance or the middle of the building, then Capture.",
+                Banner("Verifying ${t.code?.takeIf { c -> !t.nameEn.contains(c) }?.let { "$it " } ?: ""}${t.nameEn}: stand at its main entrance, then Capture.",
                     Modifier.weight(1f))
                 InstrButton("✕") { survey.setTemplate(null) }
             }
+            captureBlock() // when verifying, the button sits right under the banner
         }
         FixPanel(g)
         Row(horizontalArrangement = gap) {
@@ -70,17 +84,7 @@ fun HudScreen(survey: SurveyController, sessionTitle: String?, onCaptured: () ->
             }
         }
         RawPanel(g, onToggle = { survey.gnss.setRawEnabled(it) })
-        when (val c = capture) {
-            is CaptureUi.Running -> CapturePanel(c, onStop = survey::stopCapture, onCancel = survey::cancelCapture)
-            is CaptureUi.Done -> DonePanel(c, survey.settings.warnAccM,
-                onRecapture = { survey.startCapture(c.featureId) },
-                onUse = { if (c.featureId != null) survey.clearDone() else onCaptured() },
-                onDiscard = survey::clearDone)
-            CaptureUi.Idle -> InstrButton(
-                if (g.fix == null) "Waiting for fix…" else "Capture", Modifier.fillMaxWidth().height(64.dp),
-                primary = true, enabled = g.fix != null,
-            ) { if (sessionTitle == null) onNeedSession() else survey.startCapture() }
-        }
+        if (tpl == null) captureBlock()
         Spacer(Modifier.height(8.dp))
     }
 }
