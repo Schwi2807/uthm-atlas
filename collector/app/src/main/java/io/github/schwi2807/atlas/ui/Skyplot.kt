@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
 import io.github.schwi2807.atlas.gnss.Constellation
 import io.github.schwi2807.atlas.gnss.Sat
 import kotlin.math.cos
@@ -69,9 +70,11 @@ fun Skyplot(sats: List<Sat>, headingDeg: Float?, modifier: Modifier = Modifier) 
             val dot = (2.5f + (s.cn0DbHz.coerceIn(10f, 50f) - 10f) / 40f * 7f).dp.toPx()
             val col = if (s.usedInFix) P.amber else P.muted
             if (s.usedInFix) drawCircle(col, dot, p) else drawCircle(col, dot, p, style = Stroke(1.5.dp.toPx()))
-            paint.color = P.dim.toArgb()
-            paint.textSize = 8.dp.toPx()
-            drawContext.canvas.nativeCanvas.drawText(short(s.constellation) + s.svid, p.x + dot + 1.dp.toPx(), p.y + 3.dp.toPx(), paint)
+            if (s.usedInFix) { // label only the satellites in the fix: keeps a 40-satellite sky readable
+                paint.color = P.muted.toArgb()
+                paint.textSize = 9.dp.toPx()
+                drawContext.canvas.nativeCanvas.drawText(short(s.constellation) + s.svid, p.x + dot + 1.dp.toPx(), p.y + 3.dp.toPx(), paint)
+            }
         }
     }
 }

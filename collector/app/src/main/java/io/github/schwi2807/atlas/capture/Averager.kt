@@ -117,7 +117,10 @@ class Averager(val settings: CaptureSettings = CaptureSettings()) {
         // with one sample the spread is unknown: fall back to the receiver's own accuracy estimate
         val meanAcc = samples.sumOf { it.accM } / samples.size
         val spread = if (samples.size < 3) meanAcc else max(std, 0.1)
-        val ci95 = 2.45 * spread / sqrt(max(nEff, 1.0))
+        // Consecutive fixes are strongly correlated (a phone standing still often repeats the same position), so the
+        // scatter alone can claim centimetres. Never report the mean as better than half the receiver's own estimate.
+        val wMeanAcc = samples.sumOf { s -> 1.0 / max(s.accM, 0.5).let { it * it } * s.accM } / sw
+        val ci95 = max(2.45 * spread / sqrt(max(nEff, 1.0)), 0.5 * wMeanAcc)
         val (lat, lon) = toLatLon(mx, my)
         return CaptureResult(
             lat = lat, lon = lon, alt = if (nAlt > 0) sAlt / nAlt else null,

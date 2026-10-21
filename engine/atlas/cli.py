@@ -22,7 +22,7 @@ def _cfg(args):
 
 def cmd_ingest(args) -> int:
     from . import ingest
-    files = [Path(f) for f in args.files] or sorted(SURVEYS.glob("*.uthmsurvey"))
+    files = [Path(f) for f in args.files] or sorted([*SURVEYS.glob("*.uthmsurvey"), *SURVEYS.glob("*.uthmsurvey.zip")])
     if not files:
         print("no .uthmsurvey files given or found in surveys/", file=sys.stderr)
         return 2

@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -47,11 +46,14 @@ android {
         compose = true
         buildConfig = true
     }
-    sourceSets["main"].assets.srcDir(sharedAssets)
+    sourceSets["main"].assets.srcDir(sharedAssets.get().asFile) // AGP 9 wants a plain directory here
     testOptions {
         unitTests.all {
             it.systemProperty("atlas.schemaDir", repoRoot.resolve("schema").absolutePath)
         }
+    }
+    androidResources {
+        noCompress += listOf("pmtiles", "pbf")
     }
     packaging {
         resources.excludes += setOf("META-INF/{AL2.0,LGPL2.1}", "META-INF/LICENSE*", "META-INF/NOTICE*")

@@ -101,7 +101,8 @@ fun InstrButton(text: String, modifier: Modifier = Modifier, primary: Boolean = 
             contentColor = if (primary) Color.Black else P.text,
             disabledContainerColor = P.panel, disabledContentColor = P.dim,
         ),
-    ) { Text(text.uppercase(), fontFamily = Mono, fontWeight = FontWeight.Bold, letterSpacing = 1.sp) }
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 8.dp),
+    ) { Text(text.uppercase(), fontFamily = Mono, fontWeight = FontWeight.Bold, fontSize = 13.sp, letterSpacing = 0.5.sp, maxLines = 1, softWrap = false) }
 }
 
 @Composable

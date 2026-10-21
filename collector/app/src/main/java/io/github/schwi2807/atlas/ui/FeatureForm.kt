@@ -139,6 +139,26 @@ fun FeatureForm(survey: SurveyController, initial: FeatureEntity, isNew: Boolean
         } else f?.delete()
         pendingPhoto = null
     }
+    fun addPhoto(f: File) {
+        photos += buildJsonObject {
+            put("local", f.name)
+            put("name", "${initial.id.take(8)}-${System.currentTimeMillis() % 1_000_000}.jpg")
+            put("taken_at", System.currentTimeMillis())
+        }
+    }
+    var cameraFile by remember { mutableStateOf<File?>(null) }
+    cameraFile?.let { f ->
+        CameraCapture(
+            target = f,
+            onDone = { ok -> if (ok && f.length() > 0) addPhoto(f) else f.delete(); cameraFile = null },
+            onFailed = { // no CameraX camera: hand over to the system camera app
+                cameraFile = null
+                pendingPhoto = f
+                takePhoto.launch(FileProvider.getUriForFile(ctx, ctx.packageName + ".files", f))
+            },
+        )
+        return
+    }
 
     Column(Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = gap) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -185,16 +205,35 @@ fun FeatureForm(survey: SurveyController, initial: FeatureEntity, isNew: Boolean
         }
         if (kind == "entrance") Panel("Door direction (facing IN, true north)") {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = gap, modifier = Modifier.padding(top = 6.dp)) {
-                Text(compass.headingDeg?.let { "%03.0f°".format(it) } ?: "no compass", style = big.copy(fontSize = 30.sp))
-                if (compass.available) InstrButton("Lock", primary = true) {
-                    compass.headingDeg?.let { bearing = it.toDouble(); bearingText = "%.0f".format(it) }
+                if (compass.available) {
+                    Text(compass.headingDeg?.let { "%03.0f°".format(it) } ?: "---°", style = big.copy(fontSize = 30.sp))
+                    InstrButton("Lock", primary = true) {
+                        compass.headingDeg?.let { bearing = it.toDouble(); bearingText = "%.0f".format(it) }
+                    }
                 }
                 Field("Bearing °", bearingText, Modifier.width(110.dp), keyboard = KeyboardType.Number) {
                     bearingText = it; bearing = it.toDoubleOrNull()?.let { b -> ((b % 360) + 360) % 360 }
                 }
             }
-            if (compass.available && compass.accuracy < 2) Text("Compass needs calibration: wave the phone in a figure 8.", fontSize = 11.sp, color = P.bad)
-            Text("Stand in the doorway facing into the building, then Lock.", fontSize = 11.sp, color = P.muted)
+            // no compass (or a bad one): rough direction chips; the engine squares the arrow to the wall it snaps to
+            Row(Modifier.horizontalScroll(rememberScrollState()).padding(top = 6.dp), horizontalArrangement = gap) {
+                val parent = buildings.firstOrNull { it.id == parentId }
+                if (parent != null) {
+                    val toward = bearingTo(initial.lat, initial.lon, parent.lat, parent.lon)
+                    Chip("Toward ${parent.code ?: "building"}", bearing != null && kotlin.math.abs(bearing!! - toward) < 0.5,
+                        sub = "%03.0f°".format(toward)) { bearing = toward; bearingText = "%.0f".format(toward) }
+                }
+                for ((i, n) in listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW").withIndex()) {
+                    val b = i * 45.0
+                    Chip(n, bearing == b) { bearing = b; bearingText = "%.0f".format(b) }
+                }
+            }
+            Text(
+                if (!compass.available) "No compass on this phone: pick the direction you face walking in. The build squares it to the wall."
+                else if (compass.accuracy < 2) "Compass needs calibration: wave the phone in a figure 8."
+                else "Stand in the doorway facing into the building, then Lock.",
+                fontSize = 11.sp, color = if (compass.available && compass.accuracy < 2) P.bad else P.muted,
+            )
         }
         if (kind == "building") Panel("Building") {
             Row(horizontalArrangement = gap) {
@@ -237,9 +276,7 @@ fun FeatureForm(survey: SurveyController, initial: FeatureEntity, isNew: Boolean
                     InstrButton("✕") { photos.remove(p); file.delete() }
                 }
                 if (survey.sensors.availability.camera) InstrButton("+ Photo") {
-                    val f = File(survey.photoDir, "${initial.id.take(8)}-${System.currentTimeMillis()}.jpg")
-                    pendingPhoto = f
-                    takePhoto.launch(FileProvider.getUriForFile(ctx, ctx.packageName + ".files", f))
+                    cameraFile = File(survey.photoDir, "${initial.id.take(8)}-${System.currentTimeMillis()}.jpg")
                 }
             }
         }
@@ -293,6 +330,13 @@ private fun Field(
         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = P.amber, unfocusedBorderColor = P.line, cursorColor = P.amber,
             focusedLabelColor = P.amber),
     )
+}
+
+private fun bearingTo(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    val p1 = Math.toRadians(lat1); val p2 = Math.toRadians(lat2); val dl = Math.toRadians(lon2 - lon1)
+    val y = kotlin.math.sin(dl) * kotlin.math.cos(p2)
+    val x = kotlin.math.cos(p1) * kotlin.math.sin(p2) - kotlin.math.sin(p1) * kotlin.math.cos(p2) * kotlin.math.cos(dl)
+    return (Math.toDegrees(kotlin.math.atan2(y, x)) + 360) % 360
 }
 
 private fun decodeThumb(f: File): android.graphics.Bitmap? = runCatching {

@@ -266,7 +266,8 @@ class SurveyController(private val app: Context) {
     suspend fun saveToDownloads(file: File): Uri? = withContext(Dispatchers.IO) {
         val values = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, file.name)
-            put(MediaStore.Downloads.MIME_TYPE, "application/zip")
+            // octet-stream: with "application/zip" MediaStore renames the file to .uthmsurvey.zip
+            put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
             put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/UTHM Atlas")
         }
         val uri = app.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return@withContext null

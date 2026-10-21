@@ -209,3 +209,22 @@ def test_override_polygon_replaces_osm_outline(cfg, tmp_path):
     assert res.overrides == 1 and res.footprints == 1 and res.linked == 1
     fp = json.loads((work / "footprints.geojson").read_text())["features"][0]["properties"]
     assert fp["src"] == "override" and fp["linked"] == fid(1)
+
+
+def test_door_arrows_are_squared_to_the_wall(cfg, tmp_path):
+    work = tmp_path / "work"
+    b = walked(1, "building", "faculty", "Faculty", 103.08500, 1.85800)
+    rough = walked(2, "entrance", "entrance", "South door", 103.08500, 1.85775, parent_id=fid(1), bearing_deg=20.0)
+    east = walked(3, "entrance", "entrance", "East door", 103.08525, 1.85800, parent_id=fid(1), bearing_deg=315.0)
+    odd = walked(4, "entrance", "entrance", "Odd door", 103.08500, 1.85776, parent_id=fid(1), bearing_deg=120.0)
+    ingest.save_features(work, [b, rough, east, odd])
+    els = [_way(100, 103.0850, 1.8580)]
+    res = footprints.run(cfg, work, elements=els, overrides_dir=tmp_path / "none")
+    feats = {f["id"]: f["properties"] for f in ingest.load_features(work)}
+    assert feats[fid(2)]["bearing_deg"] == pytest.approx(0.0, abs=0.5)     # south wall -> facing north into it
+    assert feats[fid(2)]["_bearing_orig"] == 20.0
+    assert feats[fid(3)]["bearing_deg"] == pytest.approx(270.0, abs=0.5)   # east wall -> facing west
+    assert feats[fid(4)]["bearing_deg"] == 120.0                            # too far off: left as recorded
+    assert res.squared == 2
+    footprints.run(cfg, work, elements=els, overrides_dir=tmp_path / "none")  # idempotent
+    assert {f["id"]: f["properties"] for f in ingest.load_features(work)}[fid(2)]["_bearing_orig"] == 20.0

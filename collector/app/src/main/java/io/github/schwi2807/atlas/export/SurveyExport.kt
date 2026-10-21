@@ -44,7 +44,9 @@ object SurveyExport {
     private val json = Json { prettyPrint = false }
     private val zone: ZoneId = ZoneId.of("Asia/Kuala_Lumpur")
 
-    fun iso(ms: Long): String = OffsetDateTime.ofInstant(Instant.ofEpochMilli(ms), zone).truncatedTo(ChronoUnit.SECONDS).toString()
+    // explicit pattern: OffsetDateTime.toString() drops ":00" seconds, which is not valid RFC 3339
+    private val rfc3339 = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+    fun iso(ms: Long): String = OffsetDateTime.ofInstant(Instant.ofEpochMilli(ms), zone).truncatedTo(ChronoUnit.SECONDS).format(rfc3339)
     private fun r(v: Double, places: Int): Double { val f = Math.pow(10.0, places.toDouble()); return round(v * f) / f }
 
     fun write(

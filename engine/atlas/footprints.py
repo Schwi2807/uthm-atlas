@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from shapely.geometry import MultiPolygon, Point, Polygon, mapping, shape
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon, mapping, shape
 from shapely.ops import nearest_points
 
 from . import geo, osmdata
@@ -42,13 +42,14 @@ class FootprintResult:
     linked: int = 0
     needs_tracing: list[str] = field(default_factory=list)
     snapped: int = 0
+    squared: int = 0
     not_snapped: list[str] = field(default_factory=list)
     drafts_replaced: int = 0
     clashes: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
         out = [f"footprints: {self.footprints} outlines ({self.overrides} hand-traced), {self.linked} linked to buildings",
-               f"  entrances snapped to an edge: {self.snapped}"]
+               f"  entrances snapped to an edge: {self.snapped} (arrows squared to the wall: {self.squared})"]
         if self.drafts_replaced:
             out.append(f"  walked buildings replaced {self.drafts_replaced} OSM draft(s)")
         if self.needs_tracing:
@@ -65,6 +66,33 @@ def _num(v) -> float | None:
         return None
     m = re.match(r"\s*([\d.]+)", str(v))
     return float(m.group(1)) if m else None
+
+
+def angle_diff(a: float, b: float) -> float:
+    d = abs(a - b) % 360
+    return 360 - d if d > 180 else d
+
+
+def inward_normal_deg(poly, ring, q) -> float | None:
+    """Bearing (degrees from north) perpendicular to the wall segment nearest q, pointing into the polygon."""
+    import math
+    coords = list(ring.coords)
+    best = None
+    for (x1, y1), (x2, y2) in zip(coords, coords[1:]):
+        seg = LineString([(x1, y1), (x2, y2)])
+        d = seg.distance(q)
+        if best is None or d < best[0]:
+            best = (d, x2 - x1, y2 - y1)
+    if best is None:
+        return None
+    _, dx, dy = best
+    length = math.hypot(dx, dy)
+    if length == 0:
+        return None
+    for nx, ny in ((dy / length, -dx / length), (-dy / length, dx / length)):
+        if poly.contains(Point(q.x + nx * 0.5, q.y + ny * 0.5)):
+            return (math.degrees(math.atan2(nx, ny)) + 360) % 360
+    return None
 
 
 def osm_footprints(elements: list[dict]) -> list[Footprint]:
@@ -226,6 +254,13 @@ def run(cfg: Config, work: Path, refresh: bool = False, elements: list[dict] | N
             e["geometry"]["coordinates"] = [round(lon, 7), round(lat, 7)]
             p["_snapped"] = True
             res.snapped += 1
+            # square the door arrow to the wall: phones without a compass give rough bearings (N/NE/...)
+            normal = inward_normal_deg(fp.metric, ring, q)
+            recorded = p.get("_bearing_orig", p.get("bearing_deg"))
+            if normal is not None and recorded is not None and angle_diff(normal, recorded) <= 60:
+                p["_bearing_orig"] = recorded
+                p["bearing_deg"] = round(normal, 1) % 360
+                res.squared += 1
         else:
             p.pop("_snapped", None)
             res.not_snapped.append(f"{p['name_en']} ({d:.0f} m)")

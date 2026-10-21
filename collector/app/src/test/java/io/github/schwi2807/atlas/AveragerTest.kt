@@ -66,8 +66,19 @@ class AveragerTest {
     fun convergenceRadiusShrinks() {
         val av = Averager(CaptureSettings(targetSamples = 100, stableAccM = 0.0))
         val rnd = Random(3)
-        val radii = (0 until 40).map { av.add(sample(it, rnd.nextDouble(-3.0, 3.0), rnd.nextDouble(-3.0, 3.0), 4.0)); av.result()!!.ci95M }
+        val radii = (0 until 40).map { av.add(sample(it, rnd.nextDouble(-3.0, 3.0), rnd.nextDouble(-3.0, 3.0), 1.0)); av.result()!!.ci95M }
         assertTrue("ring should shrink: ${radii[5]} -> ${radii.last()}", radii.last() < radii[5])
+    }
+
+    @Test
+    fun repeatedIdenticalFixesDoNotFakePrecision() {
+        // indoors the GPS provider often repeats one position: zero scatter must not look like a 0.1 m fix
+        val av = Averager(CaptureSettings(targetSamples = 30, stableAccM = 4.0))
+        var reason: StopReason? = null
+        var i = 0
+        while (reason == null) { reason = av.add(sample(i, 0.0, 0.0, 12.0)); i++ }
+        assertEquals(StopReason.COUNT, reason)
+        assertTrue("ci95 ${av.result()!!.ci95M}", av.result()!!.ci95M >= 5.9)
     }
 
     @Test

@@ -47,3 +47,25 @@ Judgement calls made during the unattended build. Newest last. Kickoff answers (
 - **D17 Identity check** (`tools/identity_check.py`, also a CI step): commit identities must be Schwi2807 with a
   no-reply address; tracked files may not contain home-directory paths or real e-mail addresses. Names to look for
   are passed in `ATLAS_FORBIDDEN_NAMES` at run time and are never written into the repo.
+- **D18 Android toolchain:** Android Studio (winget) + SDK via its wizard (licences accepted by the owner).
+  Builds use a portable Temurin JDK 17 (`C:\Dev\tools\jdk`, sha256 checked) because Studio's bundled JBR is Java 25,
+  and `collector/build.ps1` points TEMP at `C:\Dev\tmp`: Java's Windows "loopback" pipe is a Unix-domain socket file
+  in TEMP and Claude's long TEMP path makes Gradle fail ("Unable to establish loopback connection").
+  AGP 9.4.1 + Gradle 9.8.2 (Compose 1.12 needs AGP >= 9.1), Kotlin 2.4.21 built into AGP, KSP 2.3.12,
+  compileSdk 37 / targetSdk 36 / minSdk 29, `android.newDsl=false` (classic DSL for sourceSets/testOptions).
+- **D19 Surveyor positions come from LocationManager's GPS provider**, not the fused provider: every capture is a
+  real satellite fix, and no Google Play services dependency. Averaging is inverse-variance weighted (1/acc^2)
+  in a local tangent plane; the ring shows the 95% radius of the mean (2.45 sigma / sqrt(n_eff)); stop at N fixes or
+  when that radius <= 4 m and the mean moved < 0.35 m over 5 fixes.
+- **D20 Photos:** in-app CameraX capture, falling back to the system camera app if CameraX can't bind. Originals
+  keep their EXIF on the phone and in the export; the engine strips everything when publishing.
+- **D21 Suggestion pack** = `site/data/suggestions.json` (OSM names + Wikidata labels, ~50 KB), downloaded by the
+  Surveyor from the Pages site on Wi-Fi or imported from a file. Chips fill the form fields only.
+- **D22 Honest capture ring:** on the real Redmi 10C the GPS provider repeats one position indoors, so raw scatter
+  claimed ±0.1 m. The 95% radius is floored at half the (weighted) mean reported accuracy, and "stable" early stop
+  only happens when that floored radius is <= 4 m (regression test `repeatedIdenticalFixesDoNotFakePrecision`).
+- **D23 The Redmi 10C has no magnetometer and no barometer** (only an accelerometer). Door direction: 8-point chips
+  plus "toward <building>" and typed degrees; the engine squares snapped door arrows to the wall's inward normal
+  when the recorded bearing is within 60° (original kept as `_bearing_orig`). Floors: manual stepper.
+- **D24 Exports to Downloads use MIME application/octet-stream** (with application/zip MediaStore appended ".zip");
+  `atlas ingest` also picks up `*.uthmsurvey.zip`.
