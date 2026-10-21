@@ -9,7 +9,7 @@ plugins {
 val repoRoot = rootProject.projectDir.parentFile
 val sharedAssets = layout.buildDirectory.dir("generated/atlasAssets")
 val syncSharedAssets by tasks.registering(Sync::class) {
-    from(repoRoot.resolve("site/data")) { include("campus.pmtiles"); into("map") }
+    from(repoRoot.resolve("site/data")) { include("campus.pmtiles", "campus.bundle"); into("map") }
     from(repoRoot.resolve("site/map")) { into("map") }
     from(repoRoot.resolve("schema")) { include("*.json"); into("schema") }
     into(sharedAssets)

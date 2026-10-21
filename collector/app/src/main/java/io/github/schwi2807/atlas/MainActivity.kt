@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import io.github.schwi2807.atlas.data.FeatureEntity
 import io.github.schwi2807.atlas.map.MapScreen
+import io.github.schwi2807.atlas.reverify.ReverifyScreen
 import io.github.schwi2807.atlas.track.TrackService
 import io.github.schwi2807.atlas.ui.AtlasTheme
 import io.github.schwi2807.atlas.ui.FeatureForm
@@ -92,6 +93,7 @@ class MainActivity : ComponentActivity() {
     private fun App() {
         var tab by remember { mutableStateOf(Tab.HUD) }
         var editing by remember { mutableStateOf<Pair<FeatureEntity, Boolean>?>(null) }
+        var reverify by remember { mutableStateOf(false) }
         val sessionId by survey.sessionId.collectAsState()
         val sessions by survey.db.sessions().all().collectAsState(initial = emptyList())
         val recording by survey.recording.collectAsState()
@@ -100,12 +102,20 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(sessionId, sessions) { if (sessionId != null && sessions.isNotEmpty() && sessions.none { it.id == sessionId }) survey.selectSession(null) }
         BackHandler(enabled = editing != null) { editing = null }
+        BackHandler(enabled = editing == null && reverify) { reverify = false }
 
         Column(Modifier.fillMaxSize().background(P.bg).statusBarsPadding().navigationBarsPadding()) {
             Box(Modifier.weight(1f)) {
                 val e = editing
                 if (e != null) {
                     FeatureForm(survey, e.first, e.second) { editing = null; tab = Tab.HUD }
+                } else if (reverify) {
+                    ReverifyScreen(survey, onVerify = { place ->
+                        survey.setTemplate(place)
+                        reverify = false
+                        tab = Tab.HUD
+                        scope.launch { if (survey.sessionId.value == null) survey.newSession() }
+                    }, onClose = { reverify = false })
                 } else when (tab) {
                     Tab.HUD -> HudScreen(
                         survey, title,
@@ -117,14 +127,14 @@ class MainActivity : ComponentActivity() {
                         onNeedSession = { scope.launch { survey.newSession(); survey.startCapture() } },
                     )
                     Tab.MAP -> MapScreen(survey)
-                    Tab.LOG -> SessionsScreen(survey) { editing = it to false }
+                    Tab.LOG -> SessionsScreen(survey, onReverify = { reverify = true }) { editing = it to false }
                     Tab.SETUP -> SetupScreen(survey)
                 }
             }
             if (editing == null) Row(Modifier.fillMaxWidth().height(56.dp).background(P.panel)) {
                 for (t in Tab.entries) {
                     Box(
-                        Modifier.weight(1f).fillMaxSize().clickable { tab = t }.background(if (tab == t) P.panel2 else P.panel),
+                        Modifier.weight(1f).fillMaxSize().clickable { tab = t; reverify = false }.background(if (tab == t) P.panel2 else P.panel),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(t.label, fontFamily = Mono, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (tab == t) P.amber else P.muted)

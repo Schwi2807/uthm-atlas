@@ -41,7 +41,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun SessionsScreen(survey: SurveyController, onEdit: (FeatureEntity) -> Unit) {
+fun SessionsScreen(survey: SurveyController, onReverify: () -> Unit = {}, onEdit: (FeatureEntity) -> Unit) {
     val sessions by survey.db.sessions().all().collectAsState(initial = emptyList())
     val active by survey.sessionId.collectAsState()
     var open by remember { mutableStateOf(active) }
@@ -54,6 +54,7 @@ fun SessionsScreen(survey: SurveyController, onEdit: (FeatureEntity) -> Unit) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = gap) {
                 Text("SESSIONS", style = label.copy(fontSize = 12.sp, color = P.amber), modifier = Modifier.weight(1f))
+                InstrButton("Re-verify ›") { onReverify() }
                 InstrButton("+ New walk", primary = true) { scope.launch { open = survey.newSession() } }
             }
             status?.let { Banner(it, Modifier.padding(top = 8.dp)) }

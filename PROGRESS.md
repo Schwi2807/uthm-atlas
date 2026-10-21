@@ -10,7 +10,7 @@
 | M6 Surveyor sensors + map | done: offline MapLibre map (same PMTiles), track foreground service, coverage layer, CameraX, compass/barometer with fallbacks (Redmi 10C has neither: chips + manual floor), suggestion pack (download test waits for Pages) | m6-done |
 | M7 engine ingest pipeline | code + 44 tests done (dedupe, drafts, snapping, wall-squared door arrows, overrides); real 10-place walk pending | |
 | M8 PWA polish | done: Lighthouse mobile (gzip like Pages) perf 74 / a11y 100 / best practices 100 / SEO 100; update toast verified (new SW -> toast -> reload -> new bundle, old cache deleted); install on a real phone = hand test | m8-done |
-| M9 nice-to-haves | started: reverify/CampusBundle.kt (Kotlin bundle + MessagePack reader, NOT yet built or wired). Next: add campus.bundle to synced assets, Re-verify screen (stale places, oldest first, distance), then voice notes/GPX, footpath graph, floor selector + accessibility layer, QR codes | |
+| M9 nice-to-haves | 1/5 re-verify mode done (Walks -> Re-verify: unconfirmed first, then never walked, then oldest; distance + direction; Verify pre-fills the form; tested on the Redmi). Next: voice notes + GPX, footpath graph, floor selector + accessibility layer, QR codes | |
 
 ## Testing the site in the preview pane
 

@@ -24,6 +24,8 @@ import io.github.schwi2807.atlas.export.DeviceInfo
 import io.github.schwi2807.atlas.export.SensorInfo
 import io.github.schwi2807.atlas.export.SurveyExport
 import io.github.schwi2807.atlas.gnss.GnssMonitor
+import io.github.schwi2807.atlas.reverify.CampusRepo
+import io.github.schwi2807.atlas.reverify.Place
 import io.github.schwi2807.atlas.sensors.Sensors
 import io.github.schwi2807.atlas.suggest.SuggestionPack
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +60,7 @@ class SurveyController(private val app: Context) {
     val gnss = GnssMonitor(app)
     val sensors = Sensors(app)
     val suggestions = SuggestionPack(app)
+    val campus = CampusRepo(app)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val prefs = app.getSharedPreferences("atlas", Context.MODE_PRIVATE)
 
@@ -65,6 +68,11 @@ class SurveyController(private val app: Context) {
     val sessionId: StateFlow<String?> = _session.asStateFlow()
     private val _recording = MutableStateFlow(false)
     val recording: StateFlow<Boolean> = _recording.asStateFlow()
+    /** Re-verify: the published place being checked; pre-fills the form of the next new feature. */
+    private val _template = MutableStateFlow<Place?>(null)
+    val template: StateFlow<Place?> = _template.asStateFlow()
+    fun setTemplate(p: Place?) { _template.value = p }
+
     private val _capture = MutableStateFlow<CaptureUi>(CaptureUi.Idle)
     val capture: StateFlow<CaptureUi> = _capture.asStateFlow()
 
@@ -218,11 +226,27 @@ class SurveyController(private val app: Context) {
 
     fun newFeature(sessionId: String, r: CaptureResult, reason: StopReason): FeatureEntity {
         val now = System.currentTimeMillis()
-        return FeatureEntity(
+        val t = _template.value
+        _template.value = null
+        val base = FeatureEntity(
             id = UUID.randomUUID().toString(), sessionId = sessionId, kind = "poi", category = "poi_other", nameEn = "",
             lon = r.lon, lat = r.lat, alt = r.alt, n = r.n, stdM = r.stdM, meanAccM = r.meanAccM, bestAccM = r.bestAccM,
             satsUsed = r.satsUsed, satsVisible = r.satsVisible, stopReason = reason.name, captureStart = r.startMs,
             captureEnd = r.endMs, createdAt = now, updatedAt = now, lastVerified = today(),
+        )
+        if (t == null) return base
+        // re-verifying a published place: start from what the map says; you confirm or correct every field
+        val kind = if (t.kind == "building" || t.kind == "path_note") t.kind else "poi"
+        return base.copy(
+            kind = kind, category = t.category, nameEn = t.nameEn, nameMs = t.nameMs, code = t.code,
+            aliasesJson = kotlinx.serialization.json.JsonArray(t.aliases.map { kotlinx.serialization.json.JsonPrimitive(it) }).toString(),
+            floors = if (kind == "building") t.floors else null,
+            suggestionJson = kotlinx.serialization.json.buildJsonObject {
+                put("source", kotlinx.serialization.json.JsonPrimitive("osm"))
+                put("text", kotlinx.serialization.json.JsonPrimitive(t.nameEn))
+                put("distance_m", kotlinx.serialization.json.JsonPrimitive(SuggestionPack.distance(r.lat, r.lon, t.lat, t.lon).toInt()))
+                put("ref", kotlinx.serialization.json.JsonPrimitive("atlas:" + t.shortId))
+            }.toString(),
         )
     }
 

@@ -52,6 +52,14 @@ fun HudScreen(survey: SurveyController, sessionTitle: String?, onCaptured: () ->
         verticalArrangement = gap,
     ) {
         StatusStrip(g, sessionTitle, recording)
+        val tpl by survey.template.collectAsState()
+        tpl?.let { t ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Banner("Verifying: ${t.code?.let { "$it " } ?: ""}${t.nameEn}. Stand at the main entrance or the middle of the building, then Capture.",
+                    Modifier.weight(1f))
+                InstrButton("✕") { survey.setTemplate(null) }
+            }
+        }
         FixPanel(g)
         Row(horizontalArrangement = gap) {
             Panel("Skyplot", Modifier.weight(1.15f)) {
