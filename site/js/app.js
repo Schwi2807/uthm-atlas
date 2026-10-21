@@ -1,6 +1,5 @@
 // UTHM Atlas app shell: boot, search, place cards, chips, First Week tour, location, settings, offline status.
 import { parseBundle } from './bundle.js';
-import { CampusMap, registerTiles } from './map.js';
 import { makeSearch, distanceM } from './search.js';
 import { t, setLang, getLang, pname, altName, catName, fmtDate, floorLabel } from './i18n.js';
 import { svg } from './icons.js';
@@ -479,9 +478,12 @@ async function boot() {
   applyTexts();
   initSW();
   try {
+    // start the map code download and the data download together (MapLibre is ~1 MB of JS)
+    const mapModule = import('./map.js');
     const res = await fetch('data/campus.bundle');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.b = await parseBundle(await res.arrayBuffer());
+    const { CampusMap, registerTiles } = await mapModule;
     state.search = makeSearch(state.b);
     const tiles = await registerTiles(state.b.build);
     state.b.tilesMode = tiles.mode;

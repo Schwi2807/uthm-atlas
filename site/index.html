@@ -13,8 +13,10 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css">
   <link rel="stylesheet" href="css/app.css">
+  <!-- the boot screen doesn't need MapLibre's CSS: load it without blocking the first paint -->
+  <link rel="stylesheet" href="vendor/maplibre-gl.css" media="print" onload="this.media='all'">
+  <link rel="preload" href="fonts/overpass-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
   <script>
     // theme before first paint (no flash)
     try {
@@ -25,7 +27,7 @@
     // test hook: headless/preview panes freeze requestAnimationFrame; ?rafshim drives frames with timers
     if (/[?&]rafshim\b/.test(location.search)) window.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 16);
   </script>
-  <script src="vendor/pmtiles.js"></script>
+  <script src="vendor/pmtiles.js" defer></script>
   <script type="module" src="js/app.js"></script>
 </head>
 <body>

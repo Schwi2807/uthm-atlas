@@ -9,7 +9,7 @@
 | M5 Surveyor MVP | done: HUD + skyplot, averaged capture (honest 95% ring), form, export; on the Redmi 10C a real export validated + ingested by the engine; 11 unit tests incl. export-vs-schema | m5-done |
 | M6 Surveyor sensors + map | done: offline MapLibre map (same PMTiles), track foreground service, coverage layer, CameraX, compass/barometer with fallbacks (Redmi 10C has neither: chips + manual floor), suggestion pack (download test waits for Pages) | m6-done |
 | M7 engine ingest pipeline | code + 44 tests done (dedupe, drafts, snapping, wall-squared door arrows, overrides); real 10-place walk pending | |
-| M8 PWA polish | 3D + sun + tour + BM + deep links + update toast already in M3; Lighthouse pass left | |
+| M8 PWA polish | done: Lighthouse mobile (gzip like Pages) perf 74 / a11y 100 / best practices 100 / SEO 100; update toast verified (new SW -> toast -> reload -> new bundle, old cache deleted); install on a real phone = hand test | m8-done |
 | M9 nice-to-haves | | |
 
 ## Testing the site in the preview pane

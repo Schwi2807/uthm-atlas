@@ -69,3 +69,7 @@ Judgement calls made during the unattended build. Newest last. Kickoff answers (
   when the recorded bearing is within 60° (original kept as `_bearing_orig`). Floors: manual stepper.
 - **D24 Exports to Downloads use MIME application/octet-stream** (with application/zip MediaStore appended ".zip");
   `atlas ingest` also picks up `*.uthmsurvey.zip`.
+- **D25 Load order (Lighthouse):** MapLibre CSS loads non-blocking, pmtiles.js is deferred, and the map module is
+  imported in parallel with the bundle download. `atlas preview` now gzips text like GitHub Pages so local
+  Lighthouse numbers are realistic (without it FCP looked 2.5x worse). Remaining TBT is MapLibre's own ~1.7 s
+  script evaluation on a 4x-throttled CPU.

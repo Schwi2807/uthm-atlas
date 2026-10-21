@@ -6,7 +6,9 @@ Python's SimpleHTTPRequestHandler ignores Range; this one answers single ranges 
 from __future__ import annotations
 
 import functools
+import gzip
 import http.server
+import io
 import os
 import re
 import socketserver
@@ -38,9 +40,22 @@ class RangeHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
+    GZIP_TYPES = (".html", ".js", ".mjs", ".css", ".json", ".svg", ".webmanifest", ".geojson")
+
     def send_head(self):
         rng = self.headers.get("Range")
         path = Path(self.translate_path(self.path))
+        if path.is_dir():
+            path = path / "index.html"
+        # gzip text like GitHub Pages does, so local Lighthouse numbers are realistic
+        if not rng and path.is_file() and path.suffix in self.GZIP_TYPES and "gzip" in self.headers.get("Accept-Encoding", ""):
+            body = gzip.compress(path.read_bytes(), 6)
+            self.send_response(200)
+            self.send_header("Content-Type", self.guess_type(str(path)))
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            return io.BytesIO(body)
         if not rng or not path.is_file():
             return super().send_head()
         m = _RANGE.match(rng.strip())

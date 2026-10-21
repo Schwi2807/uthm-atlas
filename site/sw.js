@@ -3,7 +3,7 @@
 // ASSETS and VERSION are rewritten by `atlas build` (engine/atlas/sitefiles.py): don't edit them by hand.
 // PREFIX is unique on the shared schwi2807.github.io origin, so this never touches another app's caches.
 const PREFIX = 'uthm-atlas-';
-const VERSION = PREFIX + '266b3a765b41'; // <version>
+const VERSION = PREFIX + 'b95be830dc54'; // <version>
 const ASSETS = [
   "./",
   "css/app.css",
